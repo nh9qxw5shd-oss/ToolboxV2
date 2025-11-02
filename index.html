@@ -50,6 +50,71 @@
   @media print { header, .tabs, .panel > .control, .no-print { display:none !important } body { background:#fff; color:#000 } .form-paper { border: none; padding: 0; width: auto } }
 </style>
 </head>
+<!-- Supabase wiring: paste right before </body> -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  // Your project creds (public anon key is meant to be public)
+  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // === Your app's state bridge (EDIT THESE TWO to match your UI) ===
+  // 1) Push loaded state into your page
+  function applyState(s){
+    // Example: stash globally; replace with your real render function(s)
+    window.currentState = s;
+    // TODO: render your UI from s.assets / s.faults etc
+  }
+  // 2) Pull current state from your page
+  function getState(){
+    // TODO: build from your UI. Must be a plain object.
+    return window.currentState || { assets: [], faults: [] };
+  }
+
+  // === Supabase read/write ===
+  async function loadState(){
+    const { data, error } = await sb
+      .from("app_state")
+      .select("data")
+      .eq("id", 1)
+      .single();
+
+    if(error) throw error;
+    const state = data?.data || { assets: [], faults: [] };
+    applyState(state);
+    console.log("Loaded state", state);
+  }
+
+  async function saveState(){
+    const state = getState();
+    const { error } = await sb
+      .from("app_state")
+      .update({ data: state })
+      .eq("id", 1);
+    if(error) throw error;
+    console.log("Saved state", state);
+  }
+
+  // === Optional: buttons to test quickly (delete if you wire your own UI) ===
+  function ensureTestButtons(){
+    if(document.getElementById("sb-test-bar")) return;
+    const bar = document.createElement("div");
+    bar.id = "sb-test-bar";
+    bar.style.cssText = "position:fixed;bottom:16px;right:16px;display:flex;gap:8px;z-index:9999";
+    bar.innerHTML = `
+      <button id="btnLoad" style="padding:8px 12px">Load</button>
+      <button id="btnSave" style="padding:8px 12px">Save</button>
+    `;
+    document.body.appendChild(bar);
+    document.getElementById("btnLoad").onclick = () => loadState().catch(e=>alert(e.message));
+    document.getElementById("btnSave").onclick = () => saveState().catch(e=>alert(e.message));
+  }
+
+  // Boot
+  ensureTestButtons();
+  loadState().catch(e => alert("Load failed: " + e.message));
+</script>
 <body>
 <header>
   <h3 style="margin:0">HABD-WILD EM — v8 (Netlify persistent)</h3>
