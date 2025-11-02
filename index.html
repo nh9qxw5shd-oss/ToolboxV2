@@ -471,7 +471,6 @@
   document.getElementById('a-signed').addEventListener('input', fillFormA);
   document.getElementById('b-signed').addEventListener('input', fillFormB);
 </script>
-
 <!-- Supabase wiring: lives LAST so DOM + functions exist -->
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -481,22 +480,50 @@
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // read current state
+  // Take a snapshot of your in-page defaults to use as seed if DB is empty
+  const DEFAULT_STATE = {
+    assets: JSON.parse(JSON.stringify(window.ASSETS || [])),
+    faults: JSON.parse(JSON.stringify(window.FAULTS || [])),
+  };
+
+  // --- load current state (with seeding) ---
   async function loadState(){
     const { data, error } = await sb
       .from("app_state")
       .select("data")
       .eq("id", 1)
       .single();
-    if(error) throw error;
-    const state = data?.data || { assets: [], faults: [] };
+
+    if (error && error.code !== "PGRST116") { // ignore "not found" style
+      throw error;
+    }
+
+    let state = data?.data;
+
+    // Guard: if nothing in DB OR both arrays missing/empty -> seed from defaults
+    const empty =
+      !state ||
+      (Array.isArray(state.assets) ? state.assets.length === 0 : true) &&
+      (Array.isArray(state.faults) ? state.faults.length === 0 : true);
+
+    if (empty) {
+      state = DEFAULT_STATE;
+      // write the seed back so future loads persist
+      const { error: upErr } = await sb
+        .from("app_state")
+        .update({ data: state })
+        .eq("id", 1);
+      if (upErr) console.warn("Seeding app_state failed:", upErr.message);
+    }
+
+    // Apply WITHOUT nuking defaults if somehow still empty
     window.applyState(state);
     console.log("Loaded state", state);
   }
 
-  // save current state
+  // --- save current state ---
   async function saveState(){
-    const state = window.getState ? window.getState() : { assets: [], faults: [] };
+    const state = window.getState ? window.getState() : DEFAULT_STATE;
     const { error } = await sb
       .from("app_state")
       .update({ data: state })
