@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -49,7 +50,71 @@
   @media print { header, .tabs, .panel > .control, .no-print { display:none !important } body { background:#fff; color:#000 } .form-paper { border: none; padding: 0; width: auto } }
 </style>
 </head>
+<!-- Supabase wiring: paste right before </body> -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+  // Your project creds (public anon key is meant to be public)
+  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // === Your app's state bridge (EDIT THESE TWO to match your UI) ===
+  // 1) Push loaded state into your page
+  function applyState(s){
+    // Example: stash globally; replace with your real render function(s)
+    window.currentState = s;
+    // TODO: render your UI from s.assets / s.faults etc
+  }
+  // 2) Pull current state from your page
+  function getState(){
+    // TODO: build from your UI. Must be a plain object.
+    return window.currentState || { assets: [], faults: [] };
+  }
+
+  // === Supabase read/write ===
+  async function loadState(){
+    const { data, error } = await sb
+      .from("app_state")
+      .select("data")
+      .eq("id", 1)
+      .single();
+
+    if(error) throw error;
+    const state = data?.data || { assets: [], faults: [] };
+    applyState(state);
+    console.log("Loaded state", state);
+  }
+
+  async function saveState(){
+    const state = getState();
+    const { error } = await sb
+      .from("app_state")
+      .update({ data: state })
+      .eq("id", 1);
+    if(error) throw error;
+    console.log("Saved state", state);
+  }
+
+  // === Optional: buttons to test quickly (delete if you wire your own UI) ===
+  function ensureTestButtons(){
+    if(document.getElementById("sb-test-bar")) return;
+    const bar = document.createElement("div");
+    bar.id = "sb-test-bar";
+    bar.style.cssText = "position:fixed;bottom:16px;right:16px;display:flex;gap:8px;z-index:9999";
+    bar.innerHTML = `
+      <button id="btnLoad" style="padding:8px 12px">Load</button>
+      <button id="btnSave" style="padding:8px 12px">Save</button>
+    `;
+    document.body.appendChild(bar);
+    document.getElementById("btnLoad").onclick = () => loadState().catch(e=>alert(e.message));
+    document.getElementById("btnSave").onclick = () => saveState().catch(e=>alert(e.message));
+  }
+
+  // Boot
+  ensureTestButtons();
+  loadState().catch(e => alert("Load failed: " + e.message));
+</script>
 <body>
 <header>
   <h3 style="margin:0">HABD-WILD EM — v8 (Netlify persistent)</h3>
@@ -208,6 +273,22 @@
 <script>
   const ASSETS = [{"ID": "1", "FIN": "", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "OPERATIONAL"}, {"ID": "2", "FIN": "1", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "DEFECTIVE"}, {"ID": "3", "FIN": "", "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "Operational Status": "OPERATIONAL"}, {"ID": "4", "FIN": "2", "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "Operational Status": "DEFECTIVE"}, {"ID": "5", "FIN": "3", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "Operational Status": "DEFECTIVE"}, {"ID": "6", "FIN": "4", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "Operational Status": "DEFECTIVE"}, {"ID": "7", "FIN": "5", "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "Operational Status": "DEFECTIVE"}, {"ID": "8", "FIN": "", "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "Operational Status": "OPERATIONAL"}, {"ID": "9", "FIN": "", "Controlling SB": "EMCC", "Location": "East Langton", "Line": "Up Main", "Route": "LN3201", "ELR": "SPC3", "Mileage": "86.26", "Operational Status": "OPERATIONAL"}, {"ID": "10", "FIN": "", "Controlling SB": "EMCC", "Location": "East Langton", "Line": "Down Main", "Route": "LN3201", "ELR": "SPC3", "Mileage": "86.26", "Operational Status": "OPERATIONAL"}, {"ID": "11", "FIN": "", "Controlling SB": "EMCC", "Location": "Barrow-On-Soar", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC5", "Mileage": "108.72", "Operational Status": "OPERATIONAL"}, {"ID": "12", "FIN": "", "Controlling SB": "EMCC", "Location": "Barrow-On-Soar", "Line": "Down Slow", "Route": "LN3201", "ELR": "SCP5", "Mileage": "108.72", "Operational Status": "OPERATIONAL"}, {"ID": "13", "FIN": "", "Controlling SB": "EMCC", "Location": "Loughborough", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC5", "Mileage": "111.05", "Operational Status": "OPERATIONAL"}, {"ID": "14", "FIN": "", "Controlling SB": "EMCC", "Location": "Loughborough", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC5", "Mileage": "111.05", "Operational Status": "OPERATIONAL"}, {"ID": "15", "FIN": "", "Controlling SB": "EMCC", "Location": "Langley Mill", "Line": "Up&Dn Erewash Slow", "Route": "LN3207", "ELR": "TCC", "Mileage": "129.27", "Operational Status": "OPERATIONAL"}, {"ID": "16", "FIN": "", "Controlling SB": "EMCC", "Location": "Langley Mill", "Line": "Up Erewash Fast", "Route": "LN3207", "ELR": "TCC", "Mileage": "129.27", "Operational Status": "OPERATIONAL"}, {"ID": "17", "FIN": "", "Controlling SB": "EMCC", "Location": "Belper", "Line": "Up Main", "Route": "LN3201", "ELR": "SPC8", "Mileage": "134.68", "Operational Status": "OPERATIONAL"}, {"ID": "18", "FIN": "", "Controlling SB": "EMCC", "Location": "Willington", "Line": "Down Main", "Route": "LN3501", "ELR": "DBP1", "Mileage": "6.01", "Operational Status": "OPERATIONAL"}, {"ID": "19", "FIN": "", "Controlling SB": "EMCC", "Location": "Branston", "Line": "Up Main", "Route": "LN3501", "ELR": "DBP1", "Mileage": "13.44", "Operational Status": "OPERATIONAL"}, {"ID": "20", "FIN": "", "Controlling SB": "EMCC", "Location": "Geddington", "Line": "Down Corby", "Route": "LN3601", "ELR": "GSM1", "Mileage": "77.08", "Operational Status": "OPERATIONAL"}, {"ID": "21", "FIN": "", "Controlling SB": "EMCC", "Location": "Geddington", "Line": "Up Corby", "Route": "LN3601", "ELR": "GSM1", "Mileage": "77.08", "Operational Status": "OPERATIONAL"}, {"ID": "22", "FIN": "", "Controlling SB": "EMCC", "Location": "Narborough", "Line": "Up Nuneaton", "Route": "LN3232", "ELR": "WNS", "Mileage": "12.17", "Operational Status": "OPERATIONAL"}, {"ID": "23", "FIN": "", "Controlling SB": "EMCC", "Location": "Netherfield", "Line": "Up Main", "Route": "LN3625", "ELR": "NOB1", "Mileage": "2.26", "Operational Status": "OPERATIONAL"}, {"ID": "24", "FIN": "", "Controlling SB": "LSCC", "Location": "Tinsleys", "Line": "Up Spalding", "Route": "LN170", "ELR": "WEB", "Mileage": "88.58", "Operational Status": "OPERATIONAL"}, {"ID": "25", "FIN": "", "Controlling SB": "LSCC", "Location": "Cheal Road", "Line": "Down Spalding", "Route": "LN170", "ELR": "SPD1", "Mileage": "48.32", "Operational Status": "OPERATIONAL"}, {"ID": "26", "FIN": "", "Controlling SB": "LSCC", "Location": "Scopwick", "Line": "Up Spalding", "Route": "LN170", "ELR": "SPD2", "Mileage": "70.43", "Operational Status": "OPERATIONAL"}, {"ID": "27", "FIN": "", "Controlling SB": "LSCC", "Location": "Blankney", "Line": "Down Spalding", "Route": "LN170", "ELR": "SPD2", "Mileage": "73.21", "Operational Status": "OPERATIONAL"}, {"ID": "28", "FIN": "", "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Up Fast (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"}, {"ID": "29", "FIN": "", "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Dn Fast (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"}, {"ID": "30", "FIN": "", "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Up&Dn Slow (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"}];
   let FAULTS = [{"FIN": "1", "ID": "2", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18", "FMS": "180003", "Failure Date": "2022-06-17 00:00:00", "Date in order": "", "Notes": "Reason unknown"}, {"FIN": "2", "ID": "4", "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "FMS": "179537", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "3", "ID": "5", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "FMS": "179531", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "4", "ID": "6", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "FMS": "179530", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "5", "ID": "7", "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "FMS": "178119", "Failure Date": "2022-04-18 00:00:00", "Date in order": "", "Notes": "Reason unknown"}];
+  const STATE_API = '/api/state';
+
+  async function loadState() {
+    try {
+      const r = await fetch(STATE_API, { cache:'no-store' });
+      if (r.ok) {
+        const s = await r.json();
+        if (s.assets && s.faults) {
+          ASSETS.splice(0, ASSETS.length, ...(s.assets||[]));
+          FAULTS.splice(0, FAULTS.length, ...(s.faults||[]));
+        }
+      }
+    } catch(e) {}
+  }
+  let saveTimer=null; function saveStateDebounced(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveStateNow, 500); }
+  async function saveStateNow(){ try { const payload = JSON.stringify({ assets: ASSETS, faults: FAULTS }); await fetch(STATE_API, { method:'PUT', headers:{'Content-Type':'application/json'}, body: payload }); } catch(e){} }
 
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
   function makeFIN(){ const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n)); const next = nums.length ? Math.max(...nums)+1 : 1; return String(next).padStart(4,'0'); }
@@ -293,7 +374,7 @@
       function tdInput(val, field){
         const td=document.createElement('td');
         const inp=document.createElement('input'); inp.className="fit"; inp.value = val||"";
-        inp.addEventListener('input', () => { f[field]=inp.value; recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
+        inp.addEventListener('input', () => { f[field]=inp.value; recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); saveStateDebounced(); });
         td.appendChild(inp); return td;
       }
       const a = byId(f.ID)||{};
@@ -308,11 +389,11 @@
       tr.appendChild(tdInput(f["FMS"], "FMS"));
       tr.appendChild(tdInput(f["Failure Date"], "Failure Date"));
       tr.appendChild(tdInput(f["Date in order"], "Date in order"));
-      const tdN=document.createElement('td'); const ta=document.createElement('input'); ta.className="fit"; ta.value=f["Notes"]||""; ta.addEventListener('input', ()=>{ f["Notes"]=ta.value; refreshForms(); if(window.queueSave) window.queueSave(); }); tdN.appendChild(ta); tr.appendChild(tdN);
+      const tdN=document.createElement('td'); const ta=document.createElement('input'); ta.className="fit"; ta.value=f["Notes"]||""; ta.addEventListener('input', ()=>{ f["Notes"]=ta.value; refreshForms(); saveStateDebounced(); }); tdN.appendChild(ta); tr.appendChild(tdN);
       const tdS=document.createElement('td'); tdS.innerHTML = stateOf(f)==="Open" ? '<span class="badge r">Open</span>' : '<span class="badge g">Closed</span>'; tr.appendChild(tdS);
       const tdA=document.createElement('td');
       const b=document.createElement('button'); b.className="btn small no-print"; b.textContent="Close now";
-      b.addEventListener('click', () => { f["Date in order"]=nowStr(); recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
+      b.addEventListener('click', () => { f["Date in order"]=nowStr(); recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); saveStateDebounced(); });
       tdA.appendChild(b); tr.appendChild(tdA);
       body.appendChild(tr);
     });
@@ -347,7 +428,7 @@
     renderOverview();
     renderFaults();
     refreshForms();
-    if(window.queueSave) window.queueSave();
+    saveStateDebounced();
     document.getElementById('book-fms').value="";
     document.getElementById('book-fail').value="";
     document.getElementById('book-notes').value="";
@@ -368,7 +449,7 @@
       refreshForms();
       renderOverview();
       renderFaults();
-      if(window.queueSave) window.queueSave();
+      saveStateDebounced();
     }
   }
 
@@ -453,119 +534,17 @@
     refreshForms();
   }
 
-  // applyState / getState for Supabase bridge
-  window.applyState = (s) => {
-    const a = Array.isArray(s.assets) ? s.assets : [];
-    const f = Array.isArray(s.faults) ? s.faults : [];
-    ASSETS.splice(0, ASSETS.length, ...a);
-    FAULTS.splice(0, FAULTS.length, ...f);
-    refreshAll();
-  };
-  window.getState = () => ({ assets: ASSETS, faults: FAULTS });
+  (async () => {
+    await loadState();
+    await refreshAll();
+  })();
 
-  // listeners
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
   document.getElementById('flt-q').addEventListener('input', renderFaults);
   document.getElementById('a-fin').addEventListener('change', fillFormA);
   document.getElementById('b-fin').addEventListener('change', fillFormB);
   document.getElementById('a-signed').addEventListener('input', fillFormA);
   document.getElementById('b-signed').addEventListener('input', fillFormB);
-</script>
-<!-- Supabase wiring: lives LAST so DOM + functions exist -->
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-  // Your project creds (public anon key is meant to be public)
-  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-  // Take a snapshot of your in-page defaults to use as seed if DB is empty
-  const DEFAULT_STATE = {
-    assets: JSON.parse(JSON.stringify(window.ASSETS || [])),
-    faults: JSON.parse(JSON.stringify(window.FAULTS || [])),
-  };
-
-  // --- load current state (with seeding) ---
-  async function loadState(){
-    const { data, error } = await sb
-      .from("app_state")
-      .select("data")
-      .eq("id", 1)
-      .single();
-
-    if (error && error.code !== "PGRST116") { // ignore "not found" style
-      throw error;
-    }
-
-    let state = data?.data;
-
-    // Guard: if nothing in DB OR both arrays missing/empty -> seed from defaults
-    const empty =
-      !state ||
-      (Array.isArray(state.assets) ? state.assets.length === 0 : true) &&
-      (Array.isArray(state.faults) ? state.faults.length === 0 : true);
-
-    if (empty) {
-      state = DEFAULT_STATE;
-      // write the seed back so future loads persist
-      const { error: upErr } = await sb
-        .from("app_state")
-        .update({ data: state })
-        .eq("id", 1);
-      if (upErr) console.warn("Seeding app_state failed:", upErr.message);
-    }
-
-    // Apply WITHOUT nuking defaults if somehow still empty
-    window.applyState(state);
-    console.log("Loaded state", state);
-  }
-
-  // --- save current state ---
-  async function saveState(){
-    const state = window.getState ? window.getState() : DEFAULT_STATE;
-    const { error } = await sb
-      .from("app_state")
-      .update({ data: state })
-      .eq("id", 1);
-    if(error) throw error;
-    console.log("Saved state", state);
-  }
-
-  // test buttons (optional)
-  function ensureTestButtons(){
-    if(document.getElementById("sb-test-bar")) return;
-    const bar = document.createElement("div");
-    bar.id = "sb-test-bar";
-    bar.style.cssText = "position:fixed;bottom:16px;right:16px;display:flex;gap:8px;z-index:9999";
-    bar.innerHTML = `
-      <button id="btnLoad" style="padding:8px 12px">Load</button>
-      <button id="btnSave" style="padding:8px 12px">Save</button>
-    `;
-    document.body.appendChild(bar);
-    document.getElementById("btnLoad").onclick = () => loadState().catch(e=>alert(e.message));
-    document.getElementById("btnSave").onclick = () => saveState().catch(e=>alert(e.message));
-  }
-
-  // debounced autosave
-  let _t;
-  window.queueSave = function queueSave(){ clearTimeout(_t); _t = setTimeout(() => saveState().catch(console.error), 800); };
-
-  // boot after DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureTestButtons();
-    loadState()
-      .then(() => {
-        // autosave all inputs automatically
-        document.querySelectorAll('input, textarea, select')
-          .forEach(el => el.addEventListener('input', window.queueSave));
-      })
-      .catch(e => alert("Load failed: " + e.message));
-  });
-
-  // expose for console/manual use
-  window.loadState = loadState;
-  window.saveState = saveState;
 </script>
 </body>
 </html>
