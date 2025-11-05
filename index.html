@@ -29,31 +29,24 @@
   .btn.small { padding:4px 8px; font-size:12px }
   .fit { width:100% }
   .w160 { width:160px }
-  .no-print { display:inline-flex }
+  .no-print { display: inline-flex }
 
-  /* ===== Print page (A4) – recreated form styling ===== */
   @page { size: A4; margin: 12mm }
-  .paper { background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm; font-family: "Times New Roman", Georgia, serif; }
-  .headline { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:6mm; }
-  .form-meta { font-size:12px; line-height:1.25 }
-  .smallcaps { font-variant:small-caps; letter-spacing:.25px }
-  .form-title { text-align:center; font-weight:700; text-transform:uppercase; margin:2mm 0 0 0; }
-  .form-subtitle { text-align:center; text-transform:uppercase; font-weight:700; margin:0 0 5mm 0; }
-  .np { width:100%; border:1.2px solid #000; border-collapse:collapse; table-layout:fixed; margin-bottom:4mm }
-  .np th, .np td { border:1px solid #000; padding:3.2mm 3mm; vertical-align:top; font-size:12px }
-  .lab { font-weight:700; text-transform:uppercase; width:42mm }
-  .box { border:1px solid #000; min-height:8mm; padding:1mm 2mm; font-family:"Courier New", monospace; background:#fff; }
-  .tight { padding-top:1.6mm; padding-bottom:1.6mm }
-  .note { font-size:11px; line-height:1.35 }
-  .xbox { width:5mm; height:5mm; border:1px solid #000; display:inline-block; vertical-align:middle; margin-right:3mm; text-align:center; line-height:5mm; font-weight:700 }
-  .muted { font-size:11px }
-  .centre { text-align:center }
+  .form-paper { background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm; font-family: "Times New Roman", Georgia, serif; }
+  .form-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8mm; }
+  .form-doc-title { font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.5px; text-align:center; width:100% }
+  .form-doc-code { font-weight:700; font-size:14px; text-transform:uppercase; }
+  .grid { width:100%; border:1.2px solid #000; border-collapse:collapse; table-layout:fixed; margin-bottom:6mm; }
+  .grid th, .grid td { border:1px solid #000; padding:3.5mm 3mm; vertical-align:top; }
+  .lab { font-weight:700; text-transform:uppercase; font-size:12px; width:45mm }
+  .val { font-family: "Courier New", monospace; font-size:12px; }
+  .printbar { display:flex; gap:8px; justify-content:flex-end; margin-bottom:6mm }
+  .crest-box { width:22mm; height:22mm; border:1px solid #000; display:flex; align-items:center; justify-content:center; font-size:9px }
+  .micro { font-size:10px }
+  .tight { padding-top:2mm; padding-bottom:2mm }
+  .nowrap { white-space:nowrap }
 
-  @media print {
-    header, .tabs, .panel > .control, .no-print { display:none !important }
-    body { background:#fff; color:#000 }
-    .paper { border:none; padding:0; width:auto }
-  }
+  @media print { header, .tabs, .panel > .control, .no-print { display:none !important } body { background:#fff; color:#000 } .form-paper { border: none; padding: 0; width: auto } }
 </style>
 </head>
 
@@ -116,73 +109,44 @@
     </div>
   </section>
 
-  <!-- F3.21A (Outage) -->
+  <!-- F3.21A -->
   <section id="tab-f321a" class="tab">
     <div class="panel">
       <div class="printbar no-print">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
-
-      <div class="paper" id="paper-a">
-        <div class="headline">
-          <div class="form-meta">
-            <div><span class="smallcaps">National Operating Procedures</span></div>
-            <div>Form: <strong>F3.21A</strong></div>
-            <div>Issue: <strong>01</strong></div>
-            <div>Date: <strong>02/09/17</strong></div>
-          </div>
-          <div style="flex:1"></div>
-          <div class="form-meta" style="text-align:right">
-            <div><strong>System Operations – NOP F3.21A</strong></div>
-            <div>Page: <strong>1 of 1</strong></div>
-          </div>
+      <div class="form-paper" id="form-a">
+        <div class="form-header">
+          <div class="crest-box">LOGO</div>
+          <div class="form-doc-title">NOTICE OF ASSET OUT OF ORDER</div>
+          <div class="form-doc-code">F3.21A</div>
         </div>
-
-        <h2 class="form-title">DEFECTIVE HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</h2>
-        <h3 class="form-subtitle">ADVICE OF SYSTEM OUTAGE (FAILURE OR DISCONNECTION)</h3>
-
-        <table class="np">
+        <table class="grid">
           <tr>
-            <th class="lab">Unique reference No:</th>
-            <td id="a-uniq" class="box" colspan="3"></td>
+            <th class="lab">FIN</th><td class="val" id="a-fin-val"></td>
+            <th class="lab">FMS Ref</th><td class="val" id="a-fms"></td>
           </tr>
           <tr>
-            <th class="lab">SYSTEM :</th>
-            <td colspan="3">
-              <div>
-                <span class="xbox" id="a-x-habd"></span> Hot Axle Box Detector
-                &nbsp;&nbsp;&nbsp;&nbsp;
-                <span class="xbox" id="a-x-wild"></span> Wheel Impact Load Detector
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <th class="lab">TIME:</th>
-            <td class="box" id="a-time"></td>
-            <th class="lab">DATE:</th>
-            <td class="box" id="a-date"></td>
-          </tr>
-          <tr>
-            <th class="lab">Route:</th><td class="box" id="a-route"></td>
-            <th class="lab">ELR:</th><td class="box" id="a-elr"></td>
-          </tr>
-          <tr>
-            <th class="lab">Location:</th><td class="box" id="a-loc"></td>
-            <th class="lab">Line:</th><td class="box" id="a-line"></td>
-          </tr>
-          <tr>
-            <th class="lab">Miles / Chains:</th><td class="box" id="a-miles"></td>
-            <td colspan="2" class="note">
-              I will advise you when the system is reinstated but in the meantime, please apply your company maintenance instructions for vehicles that use this route.
-            </td>
-          </tr>
-          <tr>
-            <th class="lab">SIGNED:</th>
-            <td class="box" id="a-signed-val"></td>
-            <th class="lab">DATE:</th>
-            <td class="box" id="a-signed-date"></td>
+            <th class="lab">Issued</th><td class="val nowrap" id="a-issued"></td>
+            <th class="lab">Signed</th><td class="val"><span id="a-signed-val"></span></td>
           </tr>
         </table>
+
+        <table class="grid">
+          <tr><th class="lab">ID</th><td class="val" id="a-id"></td></tr>
+          <tr><th class="lab">Controlling SB</th><td class="val" id="a-sb"></td></tr>
+          <tr><th class="lab">Location</th><td class="val" id="a-loc"></td></tr>
+          <tr><th class="lab">Line / Route</th><td class="val" id="a-line"></td></tr>
+          <tr><th class="lab">ELR / Mileage</th><td class="val" id="a-elr"></td></tr>
+          <tr><th class="lab">Operational Status</th><td class="val" id="a-op"></td></tr>
+          <tr><th class="lab">Failure Date</th><td class="val" id="a-fail"></td></tr>
+        </table>
+
+        <table class="grid tight">
+          <tr><th class="lab">Notes</th><td class="val" id="a-notes" style="height:30mm;"></td></tr>
+        </table>
+
+        <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
       </div>
 
       <div class="control" style="margin-top:10px">
@@ -192,75 +156,45 @@
     </div>
   </section>
 
-  <!-- F3.21B (Reinstatement) -->
+  <!-- F3.21B -->
   <section id="tab-f321b" class="tab">
     <div class="panel">
       <div class="printbar no-print">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
-
-      <div class="paper" id="paper-b">
-        <div class="headline">
-          <div class="form-meta">
-            <div><span class="smallcaps">National Operating Procedures</span></div>
-            <div>Form: <strong>F3.21B</strong></div>
-            <div>Issue: <strong>01</strong></div>
-            <div>Date: <strong>02/09/17</strong></div>
-          </div>
-          <div style="flex:1"></div>
-          <div class="form-meta" style="text-align:right">
-            <div><strong>System Operations – NOP F3.21B</strong></div>
-            <div>Page: <strong>1 of 1</strong></div>
-          </div>
+      <div class="form-paper" id="form-b">
+        <div class="form-header">
+          <div class="crest-box">LOGO</div>
+          <div class="form-doc-title">NOTICE OF ASSET RETURNED TO ORDER</div>
+          <div class="form-doc-code">F3.21B</div>
         </div>
-
-        <h2 class="form-title">DEFECTIVE HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</h2>
-        <h3 class="form-subtitle">ADVICE OF SYSTEM REINSTATEMENT</h3>
-
-        <table class="np">
+        <table class="grid">
           <tr>
-            <th class="lab">Unique reference No:</th>
-            <td id="b-uniq" class="box" colspan="3"></td>
+            <th class="lab">FIN</th><td class="val" id="b-fin-val"></td>
+            <th class="lab">FMS Ref</th><td class="val" id="b-fms"></td>
           </tr>
           <tr>
-            <td colspan="4" class="tight">
-              Please note the HABD or WILD equipment, which was advised to you under the above reference as being out of use from:
-            </td>
-          </tr>
-          <tr>
-            <th class="lab">TIME:</th>
-            <td class="box" id="b-from-time"></td>
-            <th class="lab">DATE:</th>
-            <td class="box" id="b-from-date"></td>
-          </tr>
-          <tr>
-            <td colspan="4" class="tight">has been reinstated:</td>
-          </tr>
-          <tr>
-            <th class="lab">TIME:</th>
-            <td class="box" id="b-back-time"></td>
-            <th class="lab">DATE:</th>
-            <td class="box" id="b-back-date"></td>
-          </tr>
-          <tr>
-            <th class="lab">Route:</th><td class="box" id="b-route"></td>
-            <th class="lab">ELR:</th><td class="box" id="b-elr"></td>
-          </tr>
-          <tr>
-            <th class="lab">Location:</th><td class="box" id="b-loc"></td>
-            <th class="lab">Line:</th><td class="box" id="b-line"></td>
-          </tr>
-          <tr>
-            <th class="lab">Miles / Chains:</th><td class="box" id="b-miles"></td>
-            <td colspan="2"></td>
-          </tr>
-          <tr>
-            <th class="lab">SIGNED:</th>
-            <td class="box" id="b-signed-val"></td>
-            <th class="lab">DATE:</th>
-            <td class="box" id="b-signed-date"></td>
+            <th class="lab">Issued</th><td class="val nowrap" id="b-issued"></td>
+            <th class="lab">Signed</th><td class="val"><span id="b-signed-val"></span></td>
           </tr>
         </table>
+
+        <table class="grid">
+          <tr><th class="lab">ID</th><td class="val" id="b-id"></td></tr>
+          <tr><th class="lab">Controlling SB</th><td class="val" id="b-sb"></td></tr>
+          <tr><th class="lab">Location</th><td class="val" id="b-loc"></td></tr>
+          <tr><th class="lab">Line / Route</th><td class="val" id="b-line"></td></tr>
+          <tr><th class="lab">ELR / Mileage</th><td class="val" id="b-elr"></td></tr>
+          <tr><th class="lab">Operational Status</th><td class="val" id="b-op"></td></tr>
+          <tr><th class="lab">Failure Date</th><td class="val" id="b-fail"></td></tr>
+          <tr><th class="lab">Date Back in Order</th><td class="val" id="b-back"></td></tr>
+        </table>
+
+        <table class="grid tight">
+          <tr><th class="lab">Notes</th><td class="val" id="b-notes" style="height:30mm;"></td></tr>
+        </table>
+
+        <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
       </div>
 
       <div class="control" style="margin-top:10px">
@@ -273,63 +207,69 @@
 
 <script>
   /* =================== STATIC DATA (unchanged by Supabase) =================== */
+  // Expose arrays globally so the Supabase module can mutate them,
+  // and keep local aliases so the rest of the code is unchanged.
   window.ASSETS = [
-    {"ID":"1","FIN":"","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Fast","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"OPERATIONAL"},
-    {"ID":"2","FIN":"1","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"DEFECTIVE"},
-    {"ID":"3","FIN":"","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Slow","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","Operational Status":"OPERATIONAL"},
-    {"ID":"4","FIN":"2","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Fast","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","Operational Status":"DEFECTIVE"},
-    {"ID":"5","FIN":"3","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Slow","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","Operational Status":"DEFECTIVE"},
-    {"ID":"6","FIN":"4","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Fast","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","Operational Status":"DEFECTIVE"},
-    {"ID":"7","FIN":"5","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Slow","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","Operational Status":"DEFECTIVE"},
-    {"ID":"8","FIN":"","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Fast","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","Operational Status":"OPERATIONAL"},
-    {"ID":"9","FIN":"","Controlling SB":"EMCC","Location":"East Langton","Line":"Up Main","Route":"LN3201","ELR":"SPC3","Mileage":"86.26","Operational Status":"OPERATIONAL"},
-    {"ID":"10","FIN":"","Controlling SB":"EMCC","Location":"East Langton","Line":"Down Main","Route":"LN3201","ELR":"SPC3","Mileage":"86.26","Operational Status":"OPERATIONAL"},
-    {"ID":"11","FIN":"","Controlling SB":"EMCC","Location":"Barrow-On-Soar","Line":"Down Fast","Route":"LN3201","ELR":"SPC5","Mileage":"108.72","Operational Status":"OPERATIONAL"},
-    {"ID":"12","FIN":"","Controlling SB":"EMCC","Location":"Barrow-On-Soar","Line":"Down Slow","Route":"LN3201","ELR":"SCP5","Mileage":"108.72","Operational Status":"OPERATIONAL"},
-    {"ID":"13","FIN":"","Controlling SB":"EMCC","Location":"Loughborough","Line":"Up Fast","Route":"LN3201","ELR":"SPC5","Mileage":"111.05","Operational Status":"OPERATIONAL"},
-    {"ID":"14","FIN":"","Controlling SB":"EMCC","Location":"Loughborough","Line":"Up Slow","Route":"LN3201","ELR":"SPC5","Mileage":"111.05","Operational Status":"OPERATIONAL"},
-    {"ID":"15","FIN":"","Controlling SB":"EMCC","Location":"Langley Mill","Line":"Up&Dn Erewash Slow","Route":"LN3207","ELR":"TCC","Mileage":"129.27","Operational Status":"OPERATIONAL"},
-    {"ID":"16","FIN":"","Controlling SB":"EMCC","Location":"Langley Mill","Line":"Up Erewash Fast","Route":"LN3207","ELR":"TCC","Mileage":"129.27","Operational Status":"OPERATIONAL"},
-    {"ID":"17","FIN":"","Controlling SB":"EMCC","Location":"Belper","Line":"Up Main","Route":"LN3201","ELR":"SPC8","Mileage":"134.68","Operational Status":"OPERATIONAL"},
-    {"ID":"18","FIN":"","Controlling SB":"EMCC","Location":"Willington","Line":"Down Main","Route":"LN3501","ELR":"DBP1","Mileage":"6.01","Operational Status":"OPERATIONAL"},
-    {"ID":"19","FIN":"","Controlling SB":"EMCC","Location":"Branston","Line":"Up Main","Route":"LN3501","ELR":"DBP1","Mileage":"13.44","Operational Status":"OPERATIONAL"},
-    {"ID":"20","FIN":"","Controlling SB":"EMCC","Location":"Geddington","Line":"Down Corby","Route":"LN3601","ELR":"GSM1","Mileage":"77.08","Operational Status":"OPERATIONAL"},
-    {"ID":"21","FIN":"","Controlling SB":"EMCC","Location":"Geddington","Line":"Up Corby","Route":"LN3601","ELR":"GSM1","Mileage":"77.08","Operational Status":"OPERATIONAL"},
-    {"ID":"22","FIN":"","Controlling SB":"EMCC","Location":"Narborough","Line":"Up Nuneaton","Route":"LN3232","ELR":"WNS","Mileage":"12.17","Operational Status":"OPERATIONAL"},
-    {"ID":"23","FIN":"","Controlling SB":"EMCC","Location":"Netherfield","Line":"Up Main","Route":"LN3625","ELR":"NOB1","Mileage":"2.26","Operational Status":"OPERATIONAL"},
-    {"ID":"24","FIN":"","Controlling SB":"LSCC","Location":"Tinsleys","Line":"Up Spalding","Route":"LN170","ELR":"WEB","Mileage":"88.58","Operational Status":"OPERATIONAL"},
-    {"ID":"25","FIN":"","Controlling SB":"LSCC","Location":"Cheal Road","Line":"Down Spalding","Route":"LN170","ELR":"SPD1","Mileage":"48.32","Operational Status":"OPERATIONAL"},
-    {"ID":"26","FIN":"","Controlling SB":"LSCC","Location":"Scopwick","Line":"Up Spalding","Route":"LN170","ELR":"SPD2","Mileage":"70.43","Operational Status":"OPERATIONAL"},
-    {"ID":"27","FIN":"","Controlling SB":"LSCC","Location":"Blankney","Line":"Down Spalding","Route":"LN170","ELR":"SPD2","Mileage":"73.21","Operational Status":"OPERATIONAL"},
-    {"ID":"28","FIN":"","Controlling SB":"LSCC","Location":"Sykes Lane","Line":"Up Gainsborough","Route":"LN170","ELR":"SPD3","Mileage":"89.17","Operational Status":"OPERATIONAL"},
-    {"ID":"29","FIN":"","Controlling SB":"Allignton","Location":"Allington East Jn","Line":"Up Nottingham","Route":"LN195","ELR":"NOG1","Mileage":"108.64","Operational Status":"OPERATIONAL"},
-    {"ID":"30","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
-    {"ID":"31","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Dn Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
-    {"ID":"32","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up&Dn Slow (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"}
-  ];
+  {"ID": "1",  "FIN": "",  "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "OPERATIONAL"},
+  {"ID": "2",  "FIN": "1", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "DEFECTIVE"},
+  {"ID": "3",  "FIN": "",  "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "Operational Status": "OPERATIONAL"},
+  {"ID": "4",  "FIN": "2", "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "Operational Status": "DEFECTIVE"},
+  {"ID": "5",  "FIN": "3", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "Operational Status": "DEFECTIVE"},
+  {"ID": "6",  "FIN": "4", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "Operational Status": "DEFECTIVE"},
+  {"ID": "7",  "FIN": "5", "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "Operational Status": "DEFECTIVE"},
+  {"ID": "8",  "FIN": "",  "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "Operational Status": "OPERATIONAL"},
+  {"ID": "9",  "FIN": "",  "Controlling SB": "EMCC", "Location": "East Langton", "Line": "Up Main", "Route": "LN3201", "ELR": "SPC3", "Mileage": "86.26", "Operational Status": "OPERATIONAL"},
+  {"ID": "10", "FIN": "",  "Controlling SB": "EMCC", "Location": "East Langton", "Line": "Down Main", "Route": "LN3201", "ELR": "SPC3", "Mileage": "86.26", "Operational Status": "OPERATIONAL"},
+  {"ID": "11", "FIN": "",  "Controlling SB": "EMCC", "Location": "Barrow-On-Soar", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC5", "Mileage": "108.72", "Operational Status": "OPERATIONAL"},
+  {"ID": "12", "FIN": "",  "Controlling SB": "EMCC", "Location": "Barrow-On-Soar", "Line": "Down Slow", "Route": "LN3201", "ELR": "SCP5", "Mileage": "108.72", "Operational Status": "OPERATIONAL"},
+  {"ID": "13", "FIN": "",  "Controlling SB": "EMCC", "Location": "Loughborough", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC5", "Mileage": "111.05", "Operational Status": "OPERATIONAL"},
+  {"ID": "14", "FIN": "",  "Controlling SB": "EMCC", "Location": "Loughborough", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC5", "Mileage": "111.05", "Operational Status": "OPERATIONAL"},
+  {"ID": "15", "FIN": "",  "Controlling SB": "EMCC", "Location": "Langley Mill", "Line": "Up&Dn Erewash Slow", "Route": "LN3207", "ELR": "TCC", "Mileage": "129.27", "Operational Status": "OPERATIONAL"},
+  {"ID": "16", "FIN": "",  "Controlling SB": "EMCC", "Location": "Langley Mill", "Line": "Up Erewash Fast", "Route": "LN3207", "ELR": "TCC", "Mileage": "129.27", "Operational Status": "OPERATIONAL"},
+  {"ID": "17", "FIN": "",  "Controlling SB": "EMCC", "Location": "Belper", "Line": "Up Main", "Route": "LN3201", "ELR": "SPC8", "Mileage": "134.68", "Operational Status": "OPERATIONAL"},
+  {"ID": "18", "FIN": "",  "Controlling SB": "EMCC", "Location": "Willington", "Line": "Down Main", "Route": "LN3501", "ELR": "DBP1", "Mileage": "6.01", "Operational Status": "OPERATIONAL"},
+  {"ID": "19", "FIN": "",  "Controlling SB": "EMCC", "Location": "Branston", "Line": "Up Main", "Route": "LN3501", "ELR": "DBP1", "Mileage": "13.44", "Operational Status": "OPERATIONAL"},
+  {"ID": "20", "FIN": "",  "Controlling SB": "EMCC", "Location": "Geddington", "Line": "Down Corby", "Route": "LN3601", "ELR": "GSM1", "Mileage": "77.08", "Operational Status": "OPERATIONAL"},
+  {"ID": "21", "FIN": "",  "Controlling SB": "EMCC", "Location": "Geddington", "Line": "Up Corby", "Route": "LN3601", "ELR": "GSM1", "Mileage": "77.08", "Operational Status": "OPERATIONAL"},
+  {"ID": "22", "FIN": "",  "Controlling SB": "EMCC", "Location": "Narborough", "Line": "Up Nuneaton", "Route": "LN3232", "ELR": "WNS", "Mileage": "12.17", "Operational Status": "OPERATIONAL"},
+  {"ID": "23", "FIN": "",  "Controlling SB": "EMCC", "Location": "Netherfield", "Line": "Up Main", "Route": "LN3625", "ELR": "NOB1", "Mileage": "2.26", "Operational Status": "OPERATIONAL"},
+  {"ID": "24", "FIN": "",  "Controlling SB": "LSCC", "Location": "Tinsleys", "Line": "Up Spalding", "Route": "LN170", "ELR": "WEB", "Mileage": "88.58", "Operational Status": "OPERATIONAL"},
+  {"ID": "25", "FIN": "",  "Controlling SB": "LSCC", "Location": "Cheal Road", "Line": "Down Spalding", "Route": "LN170", "ELR": "SPD1", "Mileage": "48.32", "Operational Status": "OPERATIONAL"},
+  {"ID": "26", "FIN": "",  "Controlling SB": "LSCC", "Location": "Scopwick", "Line": "Up Spalding", "Route": "LN170", "ELR": "SPD2", "Mileage": "70.43", "Operational Status": "OPERATIONAL"},
+  {"ID": "27", "FIN": "",  "Controlling SB": "LSCC", "Location": "Blankney", "Line": "Down Spalding", "Route": "LN170", "ELR": "SPD2", "Mileage": "73.21", "Operational Status": "OPERATIONAL"},
+  {"ID": "28", "FIN": "",  "Controlling SB": "LSCC", "Location": "Sykes Lane", "Line": "Up Gainsborough", "Route": "LN170", "ELR": "SPD3", "Mileage": "89.17", "Operational Status": "OPERATIONAL"},
+  {"ID": "29", "FIN": "",  "Controlling SB": "Allignton", "Location": "Allington East Jn", "Line": "Up Nottingham", "Route": "LN195", "ELR": "NOG1", "Mileage": "108.64", "Operational Status": "OPERATIONAL"},
+  {"ID": "30", "FIN": "",  "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Up Fast (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"},
+  {"ID": "31", "FIN": "",  "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Dn Fast (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"},
+  {"ID": "32", "FIN": "",  "Controlling SB": "EMCC", "Location": "Thurmaston", "Line": "Up&Dn Slow (WILD)", "Route": "LN3201", "ELR": "SPC5", "Mileage": "101.78", "Operational Status": "OPERATIONAL"}
+];
   const ASSETS = window.ASSETS;
 
   /* FAULTS are the ONLY thing persisted */
-  window.FAULTS = [
-    {"FIN":"1","ID":"2","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18","FMS":"180003","Failure Date":"2022-06-17 00:00:00","Date in order":"","Notes":"Reason unknown"},
-    {"FIN":"2","ID":"4","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Fast","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","FMS":"179537","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"3","ID":"5","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Slow","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","FMS":"179531","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"4","ID":"6","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Fast","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","FMS":"179530","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"5","ID":"7","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Slow","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","FMS":"178119","Failure Date":"2022-04-18 00:00:00","Date in order":"","Notes":"Reason unknown"}
-  ];
+  window.FAULTS = [{"FIN": "1", "ID": "2", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18", "FMS": "180003", "Failure Date": "2022-06-17 00:00:00", "Date in order": "", "Notes": "Reason unknown"}, {"FIN": "2", "ID": "4", "Controlling SB": "West Hampstead", "Location": "Chiltern Green", "Line": "Down Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "27.69", "FMS": "179537", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "3", "ID": "5", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "FMS": "179531", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "4", "ID": "6", "Controlling SB": "West Hampstead", "Location": "Oakley", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC2", "Mileage": "53.6", "FMS": "179530", "Failure Date": "2022-06-04 00:00:00", "Date in order": "", "Notes": "Awaiting new PC components "}, {"FIN": "5", "ID": "7", "Controlling SB": "EMCC", "Location": "Finedon", "Line": "Down Slow", "Route": "LN3201", "ELR": "SPC3", "Mileage": "67.49", "FMS": "178119", "Failure Date": "2022-04-18 00:00:00", "Date in order": "", "Notes": "Reason unknown"}];
   const FAULTS = window.FAULTS;
 
-  /* ===== Helpers ===== */
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
-  function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
+  function makeFIN(){ const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n)); const next = nums.length ? Math.max(...nums)+1 : 1; return String(next).padStart(4,'0'); }
   function stateOf(f){ return (f["Date in order"]||"").trim()==="" ? "Open" : "Closed"; }
-  function now(){ return new Date(); }
-  function pad2(n){ return String(n).padStart(2,'0'); }
-  function fmtDate(d){ return pad2(d.getDate())+"/"+pad2(d.getMonth()+1)+"/"+d.getFullYear(); }
-  function fmtTime(d){ return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
-  function nowStr(){ const d=now(); return fmtDate(d)+" "+fmtTime(d); }
+  function nowStr(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return dd + "/" + mm + "/" + yyyy + " " + HH + ":" + MM; }
 
-  /* ===== Overview / Fault log (unchanged) ===== */
+  function recomputeAssets(){
+    ASSETS.forEach(a => {
+      const related = FAULTS.filter(f => f.ID===a.ID);
+      const open = related.filter(f => stateOf(f)==="Open");
+      if(open.length){
+        open.sort((x,y) => (y["Failure Date"]||"").localeCompare(x["Failure Date"]||""));
+        a["Operational Status"] = "Defective";
+        a["FIN"] = open[0].FIN || a["FIN"] || "";
+      }else{
+        a["Operational Status"] = "Operational";
+        a["FIN"] = "";
+      }
+    });
+    fillCloseId();
+  }
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -353,7 +293,9 @@
         const td=document.createElement('td');
         if(k==="Operational Status"){
           td.innerHTML = (a[k]||"").toLowerCase().startsWith("defect") ? '<span class="badge r">Defective</span>' : '<span class="badge g">Operational</span>';
-        } else { td.textContent = a[k]||""; }
+        } else {
+          td.textContent = a[k]||"";
+        }
         tr.appendChild(td);
       });
       body.appendChild(tr);
@@ -417,109 +359,103 @@
     document.getElementById('flt-count').textContent = FAULTS.length + " rows";
   }
 
-  /* ===== Form logic ===== */
+  function bookFault(){
+    const id=(document.getElementById('book-id').value||"").trim();
+    const fms=(document.getElementById('book-fms').value||"").trim();
+    const fail=(document.getElementById('book-fail').value||"").trim();
+    const notes=(document.getElementById('book-notes').value||"").trim();
+    if(!id){ alert("Select an asset ID first."); return; }
+    if(!fms){ alert("Enter FMS ref."); return; }
+    if(!fail){ alert("Enter Failure date/time (DD/MM/YYYY HH:MM)."); return; }
+    const fin = makeFIN();
+    const a = byId(id) || {};
+    FAULTS.unshift({
+      "FIN": fin,
+      "ID": id,
+      "Controlling SB": a["Controlling SB"]||"",
+      "Location": a["Location"]||"",
+      "Line": a["Line"]||"",
+      "Route": a["Route"]||"",
+      "ELR": a["ELR"]||"",
+      "Mileage": a["Mileage"]||"",
+      "FMS": fms,
+      "Failure Date": fail,
+      "Date in order": "",
+      "Notes": notes
+    });
+    recomputeAssets();
+    renderOverview();
+    renderFaults();
+    refreshForms();
+    if(window.queueSave) window.queueSave();
+    document.getElementById('book-fms').value="";
+    document.getElementById('book-fail').value="";
+    document.getElementById('book-notes').value="";
+  }
+
+  function closeAllForId(){
+    const id=(document.getElementById('close-id').value||"").trim();
+    if(!id){ alert("Pick an ID to bulk close."); return; }
+    let changed = false;
+    FAULTS.forEach(f => {
+      if(f.ID===id && stateOf(f)==="Open"){
+        f["Date in order"] = nowStr();
+        changed = true;
+      }
+    });
+    if(changed){
+      recomputeAssets();
+      refreshForms();
+      renderOverview();
+      renderFaults();
+      if(window.queueSave) window.queueSave();
+    }
+  }
+
   function openFaults(){ return FAULTS.filter(f => stateOf(f)==="Open"); }
   function closedFaults(){ return FAULTS.filter(f => stateOf(f)==="Closed"); }
+  function labelFault(f){ const a=byId(f.ID)||{}; const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean); return bits.join(" — "); }
   function fillFIN(selId, list){
     const sel=document.getElementById(selId); sel.innerHTML="";
     const o=document.createElement('option'); o.value=""; o.textContent="Select FIN..."; sel.appendChild(o);
-    list.forEach(f => {
-      const a = byId(f.ID)||{};
-      const opt=document.createElement('option');
-      opt.value=f.FIN;
-      opt.textContent = [f.FIN, a.ID||f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean).join(" — ");
-      sel.appendChild(opt);
-    });
+    list.forEach(f => { const opt=document.createElement('option'); opt.value=f.FIN; opt.textContent=labelFault(f); sel.appendChild(opt); });
   }
-  function byFin(fin){ const f=getFault(fin)||{}; return { f, a: byId(f.ID||"")||{} }; }
-
-  function recomputeAssets(){
-    ASSETS.forEach(a => {
-      const related = FAULTS.filter(f => f.ID===a.ID);
-      const open = related.filter(f => stateOf(f)==="Open");
-      if(open.length){
-        open.sort((x,y) => (y["Failure Date"]||"").localeCompare(x["Failure Date"]||""));
-        a["Operational Status"] = "Defective";
-        a["FIN"] = open[0].FIN || a["FIN"] || "";
-      }else{
-        a["Operational Status"] = "Operational";
-        a["FIN"] = "";
-      }
-    });
-    fillCloseId();
-  }
-
-  function parseDDMM(when){
-    if(!when) return { d:"", t:"" };
-    if(when.includes("/")){
-      const [dd,mm,rest] = when.split("/");
-      const [yyyy, time] = (rest||"").split(" ");
-      return { d: [dd,mm,yyyy].join("/"), t: (time||"").slice(0,5) };
-    }
-    const [ymd, time] = when.split(" ");
-    if(ymd && ymd.includes("-")){
-      const [Y,M,D] = ymd.split("-");
-      return { d: [D,M,Y].join("/"), t: (time||"").slice(0,5) };
-    }
-    return { d: "", t: "" };
-  }
+  function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
 
   function fillFormA(){
-    const fin = document.getElementById('a-fin').value;
-    const sgn = document.getElementById('a-signed').value||"";
-    const { f, a } = byFin(fin);
-    const d = now();
-
-    // Unique reference & system X
-    document.getElementById('a-uniq').textContent = f.FMS || "";
-    const isWILD = ["30","31","32"].includes((a.ID||f.ID||"") + "");
-    document.getElementById('a-x-habd').textContent  = isWILD ? "" : "X";
-    document.getElementById('a-x-wild').textContent  = isWILD ? "X" : "";
-
-    // Time / Date (now)
-    document.getElementById('a-time').textContent = fmtTime(d);
-    document.getElementById('a-date').textContent = fmtDate(d);
-
-    // Asset fields
-    document.getElementById('a-route').textContent = a.Route||f.Route||"";
-    document.getElementById('a-elr').textContent   = a.ELR||f.ELR||"";
-    document.getElementById('a-loc').textContent   = a.Location||f.Location||"";
-    document.getElementById('a-line').textContent  = a.Line||f.Line||"";
-    document.getElementById('a-miles').textContent = a.Mileage||f.Mileage||"";
-
-    // Signature
-    document.getElementById('a-signed-val').textContent  = sgn;
-    document.getElementById('a-signed-date').textContent = fmtDate(d);
+    const fin=document.getElementById('a-fin').value;
+    const sgn=document.getElementById('a-signed').value||"";
+    const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
+    document.getElementById('a-fin-val').textContent = f.FIN||"";
+    document.getElementById('a-fms').textContent = f.FMS||"";
+    document.getElementById('a-issued').textContent = nowStr();
+    document.getElementById('a-signed-val').textContent = sgn;
+    document.getElementById('a-id').textContent = a.ID||f.ID||"";
+    document.getElementById('a-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
+    document.getElementById('a-loc').textContent = a.Location||f.Location||"";
+    document.getElementById('a-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
+    document.getElementById('a-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
+    document.getElementById('a-op').textContent = a["Operational Status"]||"Defective";
+    document.getElementById('a-fail').textContent = f["Failure Date"]||"";
+    document.getElementById('a-notes').textContent = f["Notes"]||"";
   }
-
   function fillFormB(){
-    const fin = document.getElementById('b-fin').value;
-    const sgn = document.getElementById('b-signed').value||"";
-    const { f, a } = byFin(fin);
-    const d = now();
-
-    document.getElementById('b-uniq').textContent = f.FMS || "";
-
-    // From (failure)
-    const pf = parseDDMM(f["Failure Date"]||"");
-    document.getElementById('b-from-time').textContent = pf.t;
-    document.getElementById('b-from-date').textContent = pf.d;
-
-    // Back (reinstated) – if missing, use now for print
-    const po = parseDDMM((f["Date in order"]||"").trim() || (fmtDate(d)+" "+fmtTime(d)));
-    document.getElementById('b-back-time').textContent = po.t;
-    document.getElementById('b-back-date').textContent = po.d;
-
-    // Asset fields
-    document.getElementById('b-route').textContent = a.Route||f.Route||"";
-    document.getElementById('b-elr').textContent   = a.ELR||f.ELR||"";
-    document.getElementById('b-loc').textContent   = a.Location||f.Location||"";
-    document.getElementById('b-line').textContent  = a.Line||f.Line||"";
-    document.getElementById('b-miles').textContent = a.Mileage||f.Mileage||"";
-
-    // Signature
-    document.getElementById('b-signed-val').textContent  = sgn;
-    document.getElementById('b-signed-date').textContent = fmtDate(d);
+    const fin=document.getElementById('b-fin').value;
+    const sgn=document.getElementById('b-signed').value||"";
+    const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
+    document.getElementById('b-fin-val').textContent = f.FIN||"";
+    document.getElementById('b-fms').textContent = f.FMS||"";
+    document.getElementById('b-issued').textContent = nowStr();
+    document.getElementById('b-signed-val').textContent = sgn;
+    document.getElementById('b-id').textContent = a.ID||f.ID||"";
+    document.getElementById('b-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
+    document.getElementById('b-loc').textContent = a.Location||f.Location||"";
+    document.getElementById('b-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
+    document.getElementById('b-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
+    document.getElementById('b-op').textContent = a["Operational Status"]||"Operational";
+    document.getElementById('b-fail').textContent = f["Failure Date"]||"";
+    document.getElementById('b-back').textContent = f["Date in order"]||"";
+    document.getElementById('b-notes').textContent = f["Notes"]||"";
   }
 
   function refreshForms(){
@@ -529,7 +465,6 @@
     fillFormB();
   }
 
-  /* ===== CSV & backup ===== */
   function csvDownload(filename, headers, rows){ 
     function esc(s){ s=(s==null?'':String(s)).replaceAll('"','""'); return '"' + s + '"'; }
     const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
@@ -548,6 +483,7 @@
     const rows = FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).map(f => headers.map(h => h==="State" ? stateOf(f) : ( (h in f ? f[h] : (byId(f.ID)||{} )[h]) || "" ) ));
     csvDownload("faultlog.csv", headers, rows);
   }
+
   function exportBackup(){
     const blob = new Blob([JSON.stringify({faults: FAULTS}, null, 2)], {type:"application/json"});
     const a=document.createElement('a');
@@ -556,65 +492,112 @@
     a.click();
   }
 
-  // ===== Boot =====
-  function fillCloseId(){
-    const sel = document.getElementById('close-id'); if(!sel) return;
-    sel.innerHTML="";
-    const o=document.createElement('option'); o.value=""; o.textContent="Choose ID to bulk close"; sel.appendChild(o);
-    const ids = Array.from(new Set(FAULTS.filter(f => stateOf(f)==="Open").map(f => f.ID))).filter(Boolean);
-    ids.forEach(id => {
-      const a = byId(id) || {};
-      const opt=document.createElement('option');
-      opt.value=id; opt.textContent = id + " — " + (a.Location||"") + " (" + (FAULTS.filter(f => f.ID===id && stateOf(f)==="Open").length) + " open)";
-      sel.appendChild(opt);
-    });
-  }
-  function bookFault(){
-    const id=(document.getElementById('book-id').value||"").trim();
-    const fms=(document.getElementById('book-fms').value||"").trim();
-    const fail=(document.getElementById('book-fail').value||"").trim();
-    const notes=(document.getElementById('book-notes').value||"").trim();
-    if(!id){ alert("Select an asset ID first."); return; }
-    if(!fms){ alert("Enter FMS ref."); return; }
-    if(!fail){ alert("Enter Failure date/time (DD/MM/YYYY HH:MM)."); return; }
-    const a = byId(id) || {};
-    const next = String(Math.max(0, ...FAULTS.map(x=>parseInt(x.FIN||"0",10))) + 1);
-    FAULTS.unshift({
-      "FIN": next, "ID": id, "Controlling SB": a["Controlling SB"]||"", "Location": a["Location"]||"",
-      "Line": a["Line"]||"", "Route": a["Route"]||"", "ELR": a["ELR"]||"", "Mileage": a["Mileage"]||"",
-      "FMS": fms, "Failure Date": fail, "Date in order": "", "Notes": notes
-    });
-    recomputeAssets(); renderOverview(); renderFaults(); refreshForms();
-  }
-  function closeAllForId(){
-    const id=(document.getElementById('close-id').value||"").trim();
-    if(!id){ alert("Pick an ID to bulk close."); return; }
-    const d=nowStr();
-    FAULTS.forEach(f => { if(f.ID===id && stateOf(f)==="Open"){ f["Date in order"]=d; } });
-    recomputeAssets(); renderOverview(); renderFaults(); refreshForms();
-  }
-
+  // First paint with built-in static + seeded faults (Supabase will overwrite with latest)
   function refreshAll(){
     recomputeAssets();
     renderOverview();
-    // book/close selectors
-    const sel = document.getElementById('book-id'); if(sel){ sel.innerHTML=""; const o=document.createElement('option'); o.value=""; o.textContent="Select asset ID..."; sel.appendChild(o); ASSETS.forEach(a=>{ const opt=document.createElement('option'); opt.value=a.ID; opt.textContent=labelAsset(a); sel.appendChild(opt); }); }
+    fillBookAsset();
     fillCloseId();
     renderFaults();
     refreshForms();
   }
-  window.refreshAll = refreshAll;
+  window.refreshAll = refreshAll; // <-- expose for the module
 
-  // Initial render
+  // Initial render of static page content
   refreshAll();
 
-  // inputs
+  // input listeners
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
   document.getElementById('flt-q').addEventListener('input', renderFaults);
   document.getElementById('a-fin').addEventListener('change', fillFormA);
   document.getElementById('b-fin').addEventListener('change', fillFormB);
   document.getElementById('a-signed').addEventListener('input', fillFormA);
   document.getElementById('b-signed').addEventListener('input', fillFormB);
+</script>
+
+<!-- === Supabase FAULTS snapshots (append-only) === -->
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  // Guard in case the main script hasn't created it yet
+  if (!Array.isArray(window.FAULTS)) window.FAULTS = [];
+
+  // snapshot of the built-in defaults for first-run seed
+  const DEFAULT_FAULTS = JSON.parse(JSON.stringify(window.FAULTS || []));
+
+  function applyFaults(faults){
+    window.FAULTS.splice(0, window.FAULTS.length, ...(faults || []));
+    if (window.refreshAll) window.refreshAll();
+  }
+
+  async function loadFaults(){
+    const { data, error } = await sb
+      .from("fault_snapshots")
+      .select("faults")
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    if (!data || !data[0] || !Array.isArray(data[0].faults)) {
+      // seed with the static defaults on first run
+      applyFaults(DEFAULT_FAULTS);
+      const { error: insErr } = await sb.from("fault_snapshots").insert({ faults: DEFAULT_FAULTS });
+      if (insErr) console.warn("Seed insert failed:", insErr.message);
+      console.log("Seeded FAULTS snapshot");
+    } else {
+      applyFaults(data[0].faults);
+      console.log("Loaded latest FAULTS snapshot");
+    }
+  }
+
+  async function saveSnapshot(){
+    const faults = Array.isArray(window.FAULTS) ? window.FAULTS : [];
+    const { error } = await sb.from("fault_snapshots").insert({ faults });
+    if (error) throw error;
+    console.log("Saved new FAULTS snapshot");
+  }
+
+  // debounced autosave, used by the main script via window.queueSave()
+  let _t;
+  window.queueSave = function queueSave(){
+    clearTimeout(_t);
+    _t = setTimeout(() => { saveSnapshot().catch(e => alert("Save failed: " + e.message)); }, 800);
+  };
+
+  // tiny test bar (optional)
+  function ensureTestButtons(){
+    if(document.getElementById("sb-test-bar")) return;
+    const bar = document.createElement("div");
+    bar.id = "sb-test-bar";
+    bar.style.cssText = "position:fixed;bottom:16px;right:16px;display:flex;gap:8px;z-index:9999";
+    bar.innerHTML = `
+      <button id="btnLoad" style="padding:8px 12px">Load</button>
+      <button id="btnSave" style="padding:8px 12px">Save snapshot</button>
+    `;
+    document.body.appendChild(bar);
+    document.getElementById("btnLoad").onclick = () => loadFaults().catch(e=>alert(e.message));
+    document.getElementById("btnSave").onclick = () => saveSnapshot().catch(e=>alert(e.message));
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureTestButtons();
+    loadFaults()
+      .then(() => {
+        // autosave all inputs automatically
+        document.querySelectorAll('input, textarea, select')
+          .forEach(el => el.addEventListener('input', window.queueSave));
+      })
+      .catch(e => alert("Load failed: " + e.message));
+  });
+
+  // expose for console/manual use
+  window.loadFaults = loadFaults;
+  window.saveSnapshot = saveSnapshot;
 </script>
 </body>
 </html>
