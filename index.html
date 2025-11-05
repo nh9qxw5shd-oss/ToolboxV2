@@ -31,22 +31,53 @@
   .w160 { width:160px }
   .no-print { display: inline-flex }
 
+  /* ===== Print/Page and “exact-like-PDF” form styling ===== */
   @page { size: A4; margin: 12mm }
-  .form-paper { background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm; font-family: "Times New Roman", Georgia, serif; }
-  .form-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8mm; }
-  .form-doc-title { font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.5px; text-align:center; width:100% }
-  .form-doc-code { font-weight:700; font-size:14px; text-transform:uppercase; }
-  .grid { width:100%; border:1.2px solid #000; border-collapse:collapse; table-layout:fixed; margin-bottom:6mm; }
-  .grid th, .grid td { border:1px solid #000; padding:3.5mm 3mm; vertical-align:top; }
-  .lab { font-weight:700; text-transform:uppercase; font-size:12px; width:45mm }
-  .val { font-family: "Courier New", monospace; font-size:12px; }
-  .printbar { display:flex; gap:8px; justify-content:flex-end; margin-bottom:6mm }
-  .crest-box { width:22mm; height:22mm; border:1px solid #000; display:flex; align-items:center; justify-content:center; font-size:9px }
-  .micro { font-size:10px }
-  .tight { padding-top:2mm; padding-bottom:2mm }
-  .nowrap { white-space:nowrap }
-
   @media print { header, .tabs, .panel > .control, .no-print { display:none !important } body { background:#fff; color:#000 } .form-paper { border: none; padding: 0; width: auto } }
+
+  :root{
+    /* tweak if you want precise sampling from the PDF */
+    --tint-bar:#efefef;   /* header & caption bars */
+    --tint-grid:#fafafa;  /* subtle grid fill */
+  }
+  .form-paper { background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm; font-family: "Times New Roman", Georgia, serif; }
+  .hdr{
+    display:grid; grid-template-columns:auto 1fr auto;
+    column-gap:8mm; row-gap:2mm; align-items:center; margin-bottom:5.5mm; color:#000;
+  }
+  .hdr-left{font-size:13.25px; line-height:1.2}
+  .hdr-left b{font-weight:800}
+  .hdr-mid{text-align:center}
+  .hdr-mid .title{font-size:18.2px; font-weight:800; text-transform:uppercase; letter-spacing:.2px}
+  .hdr-mid .small{font-size:12.2px}
+  .hdr-right{font-size:13.25px; text-align:right}
+  .hdr-right b{font-weight:700}
+  .bar{
+    display:flex; justify-content:space-between; align-items:center;
+    border:1px solid #000; padding:3.2mm 4mm; margin-bottom:5.5mm; font-size:13.2px;
+    background:var(--tint-bar); color:#000;
+  }
+  .cap{
+    border:1px solid #000; border-bottom:none;
+    background:var(--tint-bar); padding:2.5mm 3mm; font-size:13px; font-weight:700; color:#000;
+  }
+  .grid{width:100%; border-collapse:collapse; table-layout:fixed; margin:0; font-size:13.1px; color:#000}
+  .grid th,.grid td{border:1px solid #000; padding:3mm; vertical-align:top}
+  .grid .lab{width:46mm; font-weight:700; text-transform:uppercase}
+  .grid .fill{background:var(--tint-grid)}
+  .pair{display:grid; grid-template-columns: 26mm 1fr; column-gap:3mm; align-items:center}
+  .lab2{font-weight:700; color:#000}
+  .inline{display:grid; grid-template-columns: 1fr 1fr; gap:4mm}
+  .xline{display:grid; grid-template-columns:22mm 1fr 1fr; gap:6mm; align-items:center; margin:4.2mm 0}
+  .tick{display:inline-grid; grid-template-columns: 7.8mm auto; gap:3.2mm; align-items:center; color:#000}
+  .box{width:7.8mm; height:7.8mm; border:1px solid #000; display:inline-block; position:relative; background:#fff}
+  .box[data-x="1"]::after{content:"X"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.2px; color:#000}
+  .field{
+    width:100%; border:1px solid #000; min-height:7.2mm; padding:1.4mm 2mm; box-sizing:border-box; 
+    font-family: "Times New Roman", Georgia, serif; font-size:13.1px; background:#fff; color:#000;
+  }
+  .note{font-size:12px; margin-top:6mm; color:#000}
+  .printbar { display:flex; gap:8px; justify-content:flex-end; margin-bottom:6mm }
 </style>
 </head>
 
@@ -109,97 +140,143 @@
     </div>
   </section>
 
-  <!-- F3.21A -->
+  <!-- =================== F3.21A (exact-like) =================== -->
   <section id="tab-f321a" class="tab">
     <div class="panel">
       <div class="printbar no-print">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
-      <div class="form-paper" id="form-a">
-        <div class="form-header">
-          <div class="crest-box">LOGO</div>
-          <div class="form-doc-title">NOTICE OF ASSET OUT OF ORDER</div>
-          <div class="form-doc-code">F3.21A</div>
-        </div>
-        <table class="grid">
-          <tr>
-            <th class="lab">FIN</th><td class="val" id="a-fin-val"></td>
-            <th class="lab">FMS Ref</th><td class="val" id="a-fms"></td>
-          </tr>
-          <tr>
-            <th class="lab">Issued</th><td class="val nowrap" id="a-issued"></td>
-            <th class="lab">Signed</th><td class="val"><span id="a-signed-val"></span></td>
-          </tr>
-        </table>
 
-        <table class="grid">
-          <tr><th class="lab">ID</th><td class="val" id="a-id"></td></tr>
-          <tr><th class="lab">Controlling SB</th><td class="val" id="a-sb"></td></tr>
-          <tr><th class="lab">Location</th><td class="val" id="a-loc"></td></tr>
-          <tr><th class="lab">Line / Route</th><td class="val" id="a-line"></td></tr>
-          <tr><th class="lab">ELR / Mileage</th><td class="val" id="a-elr"></td></tr>
-          <tr><th class="lab">Operational Status</th><td class="val" id="a-op"></td></tr>
-          <tr><th class="lab">Failure Date</th><td class="val" id="a-fail"></td></tr>
-        </table>
-
-        <table class="grid tight">
-          <tr><th class="lab">Notes</th><td class="val" id="a-notes" style="height:30mm;"></td></tr>
-        </table>
-
-        <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
-      </div>
-
-      <div class="control" style="margin-top:10px">
+      <!-- Controls for A (keep your original UX) -->
+      <div class="control">
         <select id="a-fin" class="w160"></select>
         <input id="a-signed" class="w160" placeholder="Signed by">
+        <button class="btn ghost" onclick="fillFormA()">Refresh</button>
+      </div>
+
+      <div class="form-paper" id="form-a">
+        <div class="hdr">
+          <div class="hdr-left">
+            <div><b>NATIONAL OPERATING PROCEDURES</b></div>
+            <div>Form: <b>F3.21A</b></div>
+          </div>
+          <div class="hdr-mid">
+            <div class="title">ADVICE OF SYSTEM OUT OF ORDER</div>
+            <div class="small">System Operations – NOP F3.21A&nbsp;&nbsp;Page: 1 of 1</div>
+          </div>
+          <div class="hdr-right">
+            <div>Issue: <b>01</b></div>
+            <div>Date: <b>02/09/17</b></div>
+          </div>
+        </div>
+
+        <div class="bar">
+          <div><b>HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</b></div>
+          <div><b>ADVICE OF SYSTEM OUT OF ORDER</b></div>
+        </div>
+
+        <div class="xline" style="margin-top:2mm">
+          <div class="lab2"><b>SYSTEM:</b></div>
+          <label class="tick"><span id="aHABD" class="box" data-x="0"></span><span>Hot Axle Box Detector</span></label>
+          <label class="tick"><span id="aWILD" class="box" data-x="0"></span><span>Wheel Impact Load Detector</span></label>
+        </div>
+
+        <div class="inline" style="margin-top:3mm">
+          <div class="pair"><div class="lab2">TIME:</div><input id="aTime" class="field" /></div>
+          <div class="pair"><div class="lab2">DATE:</div><input id="aDate" class="field" /></div>
+        </div>
+
+        <div class="pair" style="margin-top:4.5mm">
+          <div class="lab2">UNIQUE REFERENCE:</div>
+          <input id="aFMS" class="field" />
+        </div>
+
+        <div class="cap" style="margin-top:5.2mm">ROUTE DETAILS</div>
+        <table class="grid">
+          <tr><th class="lab">Route:</th><td><input id="aRoute" class="field" /></td></tr>
+          <tr><th class="lab">ELR:</th><td><input id="aELR" class="field" /></td></tr>
+          <tr><th class="lab">Location:</th><td><input id="aLoc" class="field" /></td></tr>
+          <tr><th class="lab">Line:</th><td><input id="aLine" class="field" /></td></tr>
+          <tr><th class="lab">Miles / Chains:</th><td><input id="aMiles" class="field" /></td></tr>
+        </table>
+
+        <div class="cap" style="margin-top:5.2mm">AUTHORISATION</div>
+        <div class="inline" style="margin-top:0">
+          <div class="pair"><div class="lab2">SIGNED:</div><input id="aSigned" class="field" /></div>
+          <div class="pair"><div class="lab2">DATE:</div><input id="aSignedDate" class="field" /></div>
+        </div>
+
+        <div class="note">
+          Route Operations Control should advise all affected Train Operators operating over the route(s).
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- F3.21B -->
+  <!-- =================== F3.21B (exact-like) =================== -->
   <section id="tab-f321b" class="tab">
     <div class="panel">
       <div class="printbar no-print">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
-      <div class="form-paper" id="form-b">
-        <div class="form-header">
-          <div class="crest-box">LOGO</div>
-          <div class="form-doc-title">NOTICE OF ASSET RETURNED TO ORDER</div>
-          <div class="form-doc-code">F3.21B</div>
-        </div>
-        <table class="grid">
-          <tr>
-            <th class="lab">FIN</th><td class="val" id="b-fin-val"></td>
-            <th class="lab">FMS Ref</th><td class="val" id="b-fms"></td>
-          </tr>
-          <tr>
-            <th class="lab">Issued</th><td class="val nowrap" id="b-issued"></td>
-            <th class="lab">Signed</th><td class="val"><span id="b-signed-val"></span></td>
-          </tr>
-        </table>
 
-        <table class="grid">
-          <tr><th class="lab">ID</th><td class="val" id="b-id"></td></tr>
-          <tr><th class="lab">Controlling SB</th><td class="val" id="b-sb"></td></tr>
-          <tr><th class="lab">Location</th><td class="val" id="b-loc"></td></tr>
-          <tr><th class="lab">Line / Route</th><td class="val" id="b-line"></td></tr>
-          <tr><th class="lab">ELR / Mileage</th><td class="val" id="b-elr"></td></tr>
-          <tr><th class="lab">Operational Status</th><td class="val" id="b-op"></td></tr>
-          <tr><th class="lab">Failure Date</th><td class="val" id="b-fail"></td></tr>
-          <tr><th class="lab">Date Back in Order</th><td class="val" id="b-back"></td></tr>
-        </table>
-
-        <table class="grid tight">
-          <tr><th class="lab">Notes</th><td class="val" id="b-notes" style="height:30mm;"></td></tr>
-        </table>
-
-        <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
-      </div>
-
-      <div class="control" style="margin-top:10px">
+      <!-- Controls for B -->
+      <div class="control">
         <select id="b-fin" class="w160"></select>
         <input id="b-signed" class="w160" placeholder="Signed by">
+        <button class="btn ghost" onclick="fillFormB()">Refresh</button>
+      </div>
+
+      <div class="form-paper" id="form-b">
+        <div class="hdr">
+          <div class="hdr-left">
+            <div><b>NATIONAL OPERATING PROCEDURES</b></div>
+            <div>Form: <b>F3.21B</b></div>
+          </div>
+          <div class="hdr-mid">
+            <div class="title">ADVICE OF SYSTEM REINSTATEMENT</div>
+            <div class="small">System Operations – NOP F3.21B&nbsp;&nbsp;Page: 1 of 1</div>
+          </div>
+          <div class="hdr-right">
+            <div>Issue: <b>01</b></div>
+            <div>Date: <b>02/09/17</b></div>
+          </div>
+        </div>
+
+        <div class="bar">
+          <div><b>HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</b></div>
+          <div><b>ADVICE OF SYSTEM REINSTATEMENT</b></div>
+        </div>
+
+        <div class="xline" style="margin-top:2mm">
+          <div class="lab2"><b>SYSTEM:</b></div>
+          <label class="tick"><span id="bHABD" class="box" data-x="0"></span><span>Hot Axle Box Detector</span></label>
+          <label class="tick"><span id="bWILD" class="box" data-x="0"></span><span>Wheel Impact Load Detector</span></label>
+        </div>
+
+        <div class="inline" style="margin-top:3mm">
+          <div class="pair"><div class="lab2">TIME REINSTATED:</div><input id="bTime" class="field" /></div>
+          <div class="pair"><div class="lab2">DATE REINSTATED:</div><input id="bDate" class="field" /></div>
+        </div>
+
+        <div class="cap" style="margin-top:5.2mm">ROUTE DETAILS</div>
+        <table class="grid">
+          <tr><th class="lab">Route:</th><td><input id="bRoute" class="field" /></td></tr>
+          <tr><th class="lab">ELR:</th><td><input id="bELR" class="field" /></td></tr>
+          <tr><th class="lab">Location:</th><td><input id="bLoc" class="field" /></td></tr>
+          <tr><th class="lab">Line:</th><td><input id="bLine" class="field" /></td></tr>
+          <tr><th class="lab">Miles / Chains:</th><td><input id="bMiles" class="field" /></td></tr>
+        </table>
+
+        <div class="cap" style="margin-top:5.2mm">AUTHORISATION</div>
+        <div class="inline" style="margin-top:0">
+          <div class="pair"><div class="lab2">SIGNED:</div><input id="bSigned" class="field" /></div>
+          <div class="pair"><div class="lab2">DATE:</div><input id="bSignedDate" class="field" /></div>
+        </div>
+
+        <div class="note">
+          Route Operations Control should advise all affected Train Operators operating over the route(s).
+        </div>
       </div>
     </div>
   </section>
@@ -207,8 +284,6 @@
 
 <script>
   /* =================== STATIC DATA (unchanged by Supabase) =================== */
-  // Expose arrays globally so the Supabase module can mutate them,
-  // and keep local aliases so the rest of the code is unchanged.
   window.ASSETS = [
   {"ID": "1",  "FIN": "",  "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "OPERATIONAL"},
   {"ID": "2",  "FIN": "1", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "DEFECTIVE"},
@@ -252,7 +327,8 @@
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
   function makeFIN(){ const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n)); const next = nums.length ? Math.max(...nums)+1 : 1; return String(next).padStart(4,'0'); }
   function stateOf(f){ return (f["Date in order"]||"").trim()==="" ? "Open" : "Closed"; }
-  function nowStr(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return dd + "/" + mm + "/" + yyyy + " " + HH + ":" + MM; }
+  function nowParts(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return { dd,mm,yyyy,HH,MM }; }
+  function nowStr(){ const n=nowParts(); return n.dd + "/" + n.mm + "/" + n.yyyy + " " + n.HH + ":" + n.MM; }
 
   function recomputeAssets(){
     ASSETS.forEach(a => {
@@ -270,6 +346,7 @@
     fillCloseId();
   }
 
+  /* ===== NAV ===== */
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -280,6 +357,7 @@
     });
   });
 
+  /* ===== Overview ===== */
   const OHEAD = ["ID","FIN","Controlling SB","Location","Line","Route","ELR","Mileage","Operational Status"];
   function renderOverview(){
     const q = (document.getElementById('ovr-q').value||"").toLowerCase();
@@ -304,6 +382,7 @@
   }
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
 
+  /* ===== Fault log ===== */
   function labelAsset(a){ return [a.ID, a.Location, a.ELR && ("ELR "+a.ELR), a.Mileage && ("@ "+a.Mileage)].filter(Boolean).join(" — "); }
   function fillBookAsset(){
     const sel = document.getElementById('book-id'); sel.innerHTML="";
@@ -422,40 +501,68 @@
   }
   function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
 
+  /* ===== New helpers for A/B forms ===== */
+  function setSystemBoxes(prefix, assetId){
+    const isWILD = ["30","31","32"].includes(String(assetId));
+    const habd = document.getElementById(prefix+"HABD");
+    const wild = document.getElementById(prefix+"WILD");
+    if(habd) habd.dataset.x = isWILD ? "0" : "1";
+    if(wild) wild.dataset.x = isWILD ? "1" : "0";
+  }
+  function parseDateStr(s){
+    if(!s) return null;
+    // expects "YYYY-MM-DD HH:MM:SS"
+    const [d,t] = s.split(" ");
+    if(!d||!t) return null;
+    const [Y,M,D]=d.split("-").map(Number);
+    const [h,m]=t.split(":").map(Number);
+    if(!Y||!M||!D||h==null||m==null) return null;
+    const dd=String(D).padStart(2,'0'), mm=String(M).padStart(2,'0');
+    return { time:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`, date:`${dd}/${mm}/${Y}` };
+  }
+
   function fillFormA(){
     const fin=document.getElementById('a-fin').value;
     const sgn=document.getElementById('a-signed').value||"";
     const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    document.getElementById('a-fin-val').textContent = f.FIN||"";
-    document.getElementById('a-fms').textContent = f.FMS||"";
-    document.getElementById('a-issued').textContent = nowStr();
-    document.getElementById('a-signed-val').textContent = sgn;
-    document.getElementById('a-id').textContent = a.ID||f.ID||"";
-    document.getElementById('a-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
-    document.getElementById('a-loc').textContent = a.Location||f.Location||"";
-    document.getElementById('a-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
-    document.getElementById('a-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
-    document.getElementById('a-op').textContent = a["Operational Status"]||"Defective";
-    document.getElementById('a-fail').textContent = f["Failure Date"]||"";
-    document.getElementById('a-notes').textContent = f["Notes"]||"";
+    const n=nowParts();
+
+    setSystemBoxes("a", a.ID);
+
+    const aTime = document.getElementById('aTime'); if(aTime) aTime.value = `${n.HH}:${n.MM}`;
+    const aDate = document.getElementById('aDate'); if(aDate) aDate.value = `${n.dd}/${n.mm}/${n.yyyy}`;
+
+    const aFMS = document.getElementById('aFMS'); if(aFMS) aFMS.value = f.FMS||"";
+    const aRoute = document.getElementById('aRoute'); if(aRoute) aRoute.value = a.Route||"";
+    const aELR = document.getElementById('aELR'); if(aELR) aELR.value = a.ELR||"";
+    const aLoc = document.getElementById('aLoc'); if(aLoc) aLoc.value = a.Location||"";
+    const aLine = document.getElementById('aLine'); if(aLine) aLine.value = a.Line||"";
+    const aMiles = document.getElementById('aMiles'); if(aMiles) aMiles.value = a.Mileage||"";
+
+    const aSigned = document.getElementById('aSigned'); if(aSigned) aSigned.value = sgn;
+    const aSignedDate = document.getElementById('aSignedDate'); if(aSignedDate) aSignedDate.value = `${n.dd}/${n.mm}/${n.yyyy}`;
   }
+
   function fillFormB(){
     const fin=document.getElementById('b-fin').value;
     const sgn=document.getElementById('b-signed').value||"";
     const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    document.getElementById('b-fin-val').textContent = f.FIN||"";
-    document.getElementById('b-fms').textContent = f.FMS||"";
-    document.getElementById('b-issued').textContent = nowStr();
-    document.getElementById('b-signed-val').textContent = sgn;
-    document.getElementById('b-id').textContent = a.ID||f.ID||"";
-    document.getElementById('b-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
-    document.getElementById('b-loc').textContent = a.Location||f.Location||"";
-    document.getElementById('b-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
-    document.getElementById('b-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
-    document.getElementById('b-op').textContent = a["Operational Status"]||"Operational";
-    document.getElementById('b-fail').textContent = f["Failure Date"]||"";
-    document.getElementById('b-back').textContent = f["Date in order"]||"";
-    document.getElementById('b-notes').textContent = f["Notes"]||"";
+    const n=nowParts();
+    const back=parseDateStr(f["Date in order"]||"");
+
+    setSystemBoxes("b", a.ID);
+
+    const bTime=document.getElementById('bTime'); if(bTime) bTime.value = (back?.time)||`${n.HH}:${n.MM}`;
+    const bDate=document.getElementById('bDate'); if(bDate) bDate.value = (back?.date)||`${n.dd}/${n.mm}/${n.yyyy}`;
+
+    const bRoute=document.getElementById('bRoute'); if(bRoute) bRoute.value = a.Route||"";
+    const bELR=document.getElementById('bELR'); if(bELR) bELR.value = a.ELR||"";
+    const bLoc=document.getElementById('bLoc'); if(bLoc) bLoc.value = a.Location||"";
+    const bLine=document.getElementById('bLine'); if(bLine) bLine.value = a.Line||"";
+    const bMiles=document.getElementById('bMiles'); if(bMiles) bMiles.value = a.Mileage||"";
+
+    const bSigned=document.getElementById('bSigned'); if(bSigned) bSigned.value = sgn;
+    const bSignedDate=document.getElementById('bSignedDate'); if(bSignedDate) bSignedDate.value = `${n.dd}/${n.mm}/${n.yyyy}`;
   }
 
   function refreshForms(){
@@ -465,7 +572,8 @@
     fillFormB();
   }
 
-  function csvDownload(filename, headers, rows){ 
+  /* ===== CSV + backup ===== */
+  function csvDownload(filename, headers, rows){
     function esc(s){ s=(s==null?'':String(s)).replaceAll('"','""'); return '"' + s + '"'; }
     const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
     const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
@@ -484,15 +592,7 @@
     csvDownload("faultlog.csv", headers, rows);
   }
 
-  function exportBackup(){
-    const blob = new Blob([JSON.stringify({faults: FAULTS}, null, 2)], {type:"application/json"});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download = "faults-backup.json";
-    a.click();
-  }
-
-  // First paint with built-in static + seeded faults (Supabase will overwrite with latest)
+  /* ===== First paint ===== */
   function refreshAll(){
     recomputeAssets();
     renderOverview();
@@ -501,12 +601,11 @@
     renderFaults();
     refreshForms();
   }
-  window.refreshAll = refreshAll; // <-- expose for the module
+  window.refreshAll = refreshAll;
 
-  // Initial render of static page content
   refreshAll();
 
-  // input listeners
+  // live listeners
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
   document.getElementById('flt-q').addEventListener('input', renderFaults);
   document.getElementById('a-fin').addEventListener('change', fillFormA);
@@ -523,10 +622,7 @@
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // Guard in case the main script hasn't created it yet
   if (!Array.isArray(window.FAULTS)) window.FAULTS = [];
-
-  // snapshot of the built-in defaults for first-run seed
   const DEFAULT_FAULTS = JSON.parse(JSON.stringify(window.FAULTS || []));
 
   function applyFaults(faults){
@@ -544,7 +640,6 @@
     if (error) throw error;
 
     if (!data || !data[0] || !Array.isArray(data[0].faults)) {
-      // seed with the static defaults on first run
       applyFaults(DEFAULT_FAULTS);
       const { error: insErr } = await sb.from("fault_snapshots").insert({ faults: DEFAULT_FAULTS });
       if (insErr) console.warn("Seed insert failed:", insErr.message);
@@ -588,14 +683,12 @@
     ensureTestButtons();
     loadFaults()
       .then(() => {
-        // autosave all inputs automatically
         document.querySelectorAll('input, textarea, select')
           .forEach(el => el.addEventListener('input', window.queueSave));
       })
       .catch(e => alert("Load failed: " + e.message));
   });
 
-  // expose for console/manual use
   window.loadFaults = loadFaults;
   window.saveSnapshot = saveSnapshot;
 </script>
