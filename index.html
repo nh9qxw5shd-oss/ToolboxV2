@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HABD-WILD EM — v8 (Supabase snapshots, ASSETS static)</title>
+<title>HABD-WILD EM — v8 (Supabase snapshots, ASSETS static + PDF overlays)</title>
 <style>
   :root { --bg:#0f1116; --panel:#161b26; --ink:#e9ecf2; --muted:#9aa3b2; --border:#2a2f3a; --accent:#7aa2f7 }
   * { box-sizing:border-box }
@@ -31,6 +31,7 @@
   .w160 { width:160px }
   .no-print { display: inline-flex }
 
+  /* Printable A4 baseline for fallback layout */
   @page { size: A4; margin: 12mm }
   .form-paper { background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm; font-family: "Times New Roman", Georgia, serif; }
   .form-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8mm; }
@@ -46,7 +47,25 @@
   .tight { padding-top:2mm; padding-bottom:2mm }
   .nowrap { white-space:nowrap }
 
-  @media print { header, .tabs, .panel > .control, .no-print { display:none !important } body { background:#fff; color:#000 } .form-paper { border: none; padding: 0; width: auto } }
+  /* === PDF overlay mode === */
+  .pdf-wrap { position:relative; width: 210mm; max-width:100%; margin: 0 auto; background:#fff }
+  .pdf-canvas { width:100%; height:auto; display:block; background:#fff }
+  .overlay { position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none }
+  .ovtxt { position:absolute; font: 12pt "Courier New", monospace; color:#000; white-space:pre-wrap; line-height:1.2 }
+  .ovsmall { font-size: 10pt }
+  .ovtiny  { font-size: 9pt }
+
+  .mode-row { display:flex; gap:10px; align-items:center; justify-content:space-between }
+  .mode-left { display:flex; gap:8px; align-items:center }
+  .calib { display:flex; gap:6px; align-items:center; color:var(--muted) }
+  .calib input { width:80px }
+
+  @media print {
+    header, .tabs, .panel > .control, .no-print { display:none !important }
+    body { background:#fff; color:#000 }
+    .form-paper { border: none; padding: 0; width: auto }
+    .pdf-wrap { width: 210mm }
+  }
 </style>
 </head>
 
@@ -112,9 +131,47 @@
   <!-- F3.21A -->
   <section id="tab-f321a" class="tab">
     <div class="panel">
-      <div class="printbar no-print">
-        <button class="btn" onclick="window.print()">Print to PDF</button>
+
+      <div class="mode-row no-print">
+        <div class="mode-left">
+          <label><input type="checkbox" id="a-use-pdf" checked> Use PDF background</label>
+          <div class="calib">
+            <span>Calibrate (px):</span>
+            X <input id="a-nudge-x" type="number" value="0">
+            Y <input id="a-nudge-y" type="number" value="0">
+            <button class="btn small" id="a-reset-nudge" type="button">Reset</button>
+          </div>
+        </div>
+        <div class="printbar">
+          <button class="btn" onclick="window.print()">Print to PDF</button>
+        </div>
       </div>
+
+      <!-- PDF overlay version -->
+      <div class="pdf-wrap" id="pdf-a-wrap" aria-label="F3.21A PDF">
+        <canvas class="pdf-canvas" id="pdf-a-canvas"></canvas>
+        <div class="overlay" id="pdf-a-overlay">
+          <!-- header line -->
+          <div class="ovtxt ovsmall" data-bind="a.fin"    style="left:12%; top:9%"></div>
+          <div class="ovtxt ovsmall" data-bind="a.fms"    style="left:62%; top:9%"></div>
+          <div class="ovtxt ovsmall" data-bind="a.issued" style="left:12%; top:13%"></div>
+          <div class="ovtxt ovsmall" data-bind="a.signed" style="left:62%; top:13%"></div>
+
+          <!-- details -->
+          <div class="ovtxt" data-bind="a.id"   style="left:12%; top:22%"></div>
+          <div class="ovtxt" data-bind="a.sb"   style="left:12%; top:27%"></div>
+          <div class="ovtxt" data-bind="a.loc"  style="left:12%; top:32%"></div>
+          <div class="ovtxt" data-bind="a.line" style="left:12%; top:37%"></div>
+          <div class="ovtxt" data-bind="a.elr"  style="left:12%; top:42%"></div>
+          <div class="ovtxt" data-bind="a.op"   style="left:12%; top:47%"></div>
+          <div class="ovtxt" data-bind="a.fail" style="left:12%; top:52%"></div>
+
+          <!-- notes -->
+          <div class="ovtxt ovtiny" data-bind="a.notes" style="left:12%; top:60%; width:76%"></div>
+        </div>
+      </div>
+
+      <!-- Fallback HTML paper (shown when PDF mode is OFF) -->
       <div class="form-paper" id="form-a">
         <div class="form-header">
           <div class="crest-box">LOGO</div>
@@ -131,7 +188,6 @@
             <th class="lab">Signed</th><td class="val"><span id="a-signed-val"></span></td>
           </tr>
         </table>
-
         <table class="grid">
           <tr><th class="lab">ID</th><td class="val" id="a-id"></td></tr>
           <tr><th class="lab">Controlling SB</th><td class="val" id="a-sb"></td></tr>
@@ -141,11 +197,9 @@
           <tr><th class="lab">Operational Status</th><td class="val" id="a-op"></td></tr>
           <tr><th class="lab">Failure Date</th><td class="val" id="a-fail"></td></tr>
         </table>
-
         <table class="grid tight">
           <tr><th class="lab">Notes</th><td class="val" id="a-notes" style="height:30mm;"></td></tr>
         </table>
-
         <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
       </div>
 
@@ -159,9 +213,48 @@
   <!-- F3.21B -->
   <section id="tab-f321b" class="tab">
     <div class="panel">
-      <div class="printbar no-print">
-        <button class="btn" onclick="window.print()">Print to PDF</button>
+
+      <div class="mode-row no-print">
+        <div class="mode-left">
+          <label><input type="checkbox" id="b-use-pdf" checked> Use PDF background</label>
+          <div class="calib">
+            <span>Calibrate (px):</span>
+            X <input id="b-nudge-x" type="number" value="0">
+            Y <input id="b-nudge-y" type="number" value="0">
+            <button class="btn small" id="b-reset-nudge" type="button">Reset</button>
+          </div>
+        </div>
+        <div class="printbar">
+          <button class="btn" onclick="window.print()">Print to PDF</button>
+        </div>
       </div>
+
+      <!-- PDF overlay version -->
+      <div class="pdf-wrap" id="pdf-b-wrap" aria-label="F3.21B PDF">
+        <canvas class="pdf-canvas" id="pdf-b-canvas"></canvas>
+        <div class="overlay" id="pdf-b-overlay">
+          <!-- header -->
+          <div class="ovtxt ovsmall" data-bind="b.fin"    style="left:12%; top:9%"></div>
+          <div class="ovtxt ovsmall" data-bind="b.fms"    style="left:62%; top:9%"></div>
+          <div class="ovtxt ovsmall" data-bind="b.issued" style="left:12%; top:13%"></div>
+          <div class="ovtxt ovsmall" data-bind="b.signed" style="left:62%; top:13%"></div>
+
+          <!-- details -->
+          <div class="ovtxt" data-bind="b.id"   style="left:12%; top:22%"></div>
+          <div class="ovtxt" data-bind="b.sb"   style="left:12%; top:27%"></div>
+          <div class="ovtxt" data-bind="b.loc"  style="left:12%; top:32%"></div>
+          <div class="ovtxt" data-bind="b.line" style="left:12%; top:37%"></div>
+          <div class="ovtxt" data-bind="b.elr"  style="left:12%; top:42%"></div>
+          <div class="ovtxt" data-bind="b.op"   style="left:12%; top:47%"></div>
+          <div class="ovtxt" data-bind="b.fail" style="left:12%; top:52%"></div>
+          <div class="ovtxt" data-bind="b.back" style="left:62%; top:52%"></div>
+
+          <!-- notes -->
+          <div class="ovtxt ovtiny" data-bind="b.notes" style="left:12%; top:60%; width:76%"></div>
+        </div>
+      </div>
+
+      <!-- Fallback HTML paper (shown when PDF mode is OFF) -->
       <div class="form-paper" id="form-b">
         <div class="form-header">
           <div class="crest-box">LOGO</div>
@@ -178,7 +271,6 @@
             <th class="lab">Signed</th><td class="val"><span id="b-signed-val"></span></td>
           </tr>
         </table>
-
         <table class="grid">
           <tr><th class="lab">ID</th><td class="val" id="b-id"></td></tr>
           <tr><th class="lab">Controlling SB</th><td class="val" id="b-sb"></td></tr>
@@ -189,11 +281,9 @@
           <tr><th class="lab">Failure Date</th><td class="val" id="b-fail"></td></tr>
           <tr><th class="lab">Date Back in Order</th><td class="val" id="b-back"></td></tr>
         </table>
-
         <table class="grid tight">
           <tr><th class="lab">Notes</th><td class="val" id="b-notes" style="height:30mm;"></td></tr>
         </table>
-
         <div class="micro">This form reproduces the official layout for operational use. Ensure entries are legible and complete.</div>
       </div>
 
@@ -207,8 +297,6 @@
 
 <script>
   /* =================== STATIC DATA (unchanged by Supabase) =================== */
-  // Expose arrays globally so the Supabase module can mutate them,
-  // and keep local aliases so the rest of the code is unchanged.
   window.ASSETS = [
   {"ID": "1",  "FIN": "",  "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Fast", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "OPERATIONAL"},
   {"ID": "2",  "FIN": "1", "Controlling SB": "West Hampstead", "Location": "Napsbury", "Line": "Up Slow", "Route": "LN3201", "ELR": "SPC1", "Mileage": "18.0", "Operational Status": "DEFECTIVE"},
@@ -370,23 +458,14 @@
     const fin = makeFIN();
     const a = byId(id) || {};
     FAULTS.unshift({
-      "FIN": fin,
-      "ID": id,
+      "FIN": fin, "ID": id,
       "Controlling SB": a["Controlling SB"]||"",
       "Location": a["Location"]||"",
-      "Line": a["Line"]||"",
-      "Route": a["Route"]||"",
-      "ELR": a["ELR"]||"",
-      "Mileage": a["Mileage"]||"",
-      "FMS": fms,
-      "Failure Date": fail,
-      "Date in order": "",
-      "Notes": notes
+      "Line": a["Line"]||"", "Route": a["Route"]||"",
+      "ELR": a["ELR"]||"", "Mileage": a["Mileage"]||"",
+      "FMS": fms, "Failure Date": fail, "Date in order": "", "Notes": notes
     });
-    recomputeAssets();
-    renderOverview();
-    renderFaults();
-    refreshForms();
+    recomputeAssets(); renderOverview(); renderFaults(); refreshForms();
     if(window.queueSave) window.queueSave();
     document.getElementById('book-fms').value="";
     document.getElementById('book-fail').value="";
@@ -404,17 +483,18 @@
       }
     });
     if(changed){
-      recomputeAssets();
-      refreshForms();
-      renderOverview();
-      renderFaults();
+      recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
       if(window.queueSave) window.queueSave();
     }
   }
 
   function openFaults(){ return FAULTS.filter(f => stateOf(f)==="Open"); }
   function closedFaults(){ return FAULTS.filter(f => stateOf(f)==="Closed"); }
-  function labelFault(f){ const a=byId(f.ID)||{}; const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean); return bits.join(" — "); }
+  function labelFault(f){
+    const a=byId(f.ID)||{};
+    const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean);
+    return bits.join(" — ");
+  }
   function fillFIN(selId, list){
     const sel=document.getElementById(selId); sel.innerHTML="";
     const o=document.createElement('option'); o.value=""; o.textContent="Select FIN..."; sel.appendChild(o);
@@ -426,46 +506,57 @@
     const fin=document.getElementById('a-fin').value;
     const sgn=document.getElementById('a-signed').value||"";
     const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    document.getElementById('a-fin-val').textContent = f.FIN||"";
-    document.getElementById('a-fms').textContent = f.FMS||"";
-    document.getElementById('a-issued').textContent = nowStr();
-    document.getElementById('a-signed-val').textContent = sgn;
-    document.getElementById('a-id').textContent = a.ID||f.ID||"";
-    document.getElementById('a-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
-    document.getElementById('a-loc').textContent = a.Location||f.Location||"";
-    document.getElementById('a-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
-    document.getElementById('a-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
-    document.getElementById('a-op').textContent = a["Operational Status"]||"Defective";
-    document.getElementById('a-fail').textContent = f["Failure Date"]||"";
-    document.getElementById('a-notes').textContent = f["Notes"]||"";
+    const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val||""; };
+    set('a-fin-val', f.FIN||""); set('a-fms', f.FMS||"");
+    set('a-issued', nowStr()); set('a-signed-val', sgn);
+    const aLine=((a.Line||f.Line||"")+" / "+(a.Route||f.Route||"")).trim();
+    const aElr =((a.ELR||f.ELR||"")+" @ "+(a.Mileage||f.Mileage||"")).trim();
+    const aOp  = a["Operational Status"] || "Defective";
+    set('a-id', a.ID||f.ID||""); set('a-sb', a["Controlling SB"]||f["Controlling SB"]||"");
+    set('a-loc', a.Location||f.Location||""); set('a-line', aLine);
+    set('a-elr', aElr); set('a-op', aOp);
+    set('a-fail', f["Failure Date"]||""); set('a-notes', f["Notes"]||"");
+
+    const binds={
+      "a.fin": f.FIN||"", "a.fms": f.FMS||"", "a.issued": nowStr(), "a.signed": sgn,
+      "a.id": a.ID||f.ID||"", "a.sb": a["Controlling SB"]||f["Controlling SB"]||"",
+      "a.loc": a.Location||f.Location||"", "a.line": aLine, "a.elr": aElr, "a.op": aOp,
+      "a.fail": f["Failure Date"]||"", "a.notes": f["Notes"]||""
+    };
+    updateOverlay('pdf-a-overlay', binds, 'a');
   }
+
   function fillFormB(){
     const fin=document.getElementById('b-fin').value;
     const sgn=document.getElementById('b-signed').value||"";
     const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    document.getElementById('b-fin-val').textContent = f.FIN||"";
-    document.getElementById('b-fms').textContent = f.FMS||"";
-    document.getElementById('b-issued').textContent = nowStr();
-    document.getElementById('b-signed-val').textContent = sgn;
-    document.getElementById('b-id').textContent = a.ID||f.ID||"";
-    document.getElementById('b-sb').textContent = a["Controlling SB"]||f["Controlling SB"]||"";
-    document.getElementById('b-loc').textContent = a.Location||f.Location||"";
-    document.getElementById('b-line').textContent = (a.Line||f.Line||"") + " / " + (a.Route||f.Route||"");
-    document.getElementById('b-elr').textContent = (a.ELR||f.ELR||"") + " @ " + (a.Mileage||f.Mileage||"");
-    document.getElementById('b-op').textContent = a["Operational Status"]||"Operational";
-    document.getElementById('b-fail').textContent = f["Failure Date"]||"";
-    document.getElementById('b-back').textContent = f["Date in order"]||"";
-    document.getElementById('b-notes').textContent = f["Notes"]||"";
+    const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent = val||""; };
+    set('b-fin-val', f.FIN||""); set('b-fms', f.FMS||"");
+    set('b-issued', nowStr()); set('b-signed-val', sgn);
+    const aLine=((a.Line||f.Line||"")+" / "+(a.Route||f.Route||"")).trim();
+    const aElr =((a.ELR||f.ELR||"")+" @ "+(a.Mileage||f.Mileage||"")).trim();
+    const aOp  = a["Operational Status"] || "Operational";
+    set('b-id', a.ID||f.ID||""); set('b-sb', a["Controlling SB"]||f["Controlling SB"]||"");
+    set('b-loc', a.Location||f.Location||""); set('b-line', aLine);
+    set('b-elr', aElr); set('b-op', aOp);
+    set('b-fail', f["Failure Date"]||""); set('b-back', f["Date in order"]||""); set('b-notes', f["Notes"]||"");
+
+    const binds={
+      "b.fin": f.FIN||"", "b.fms": f.FMS||"", "b.issued": nowStr(), "b.signed": sgn,
+      "b.id": a.ID||f.ID||"", "b.sb": a["Controlling SB"]||f["Controlling SB"]||"",
+      "b.loc": a.Location||f.Location||"", "b.line": aLine, "b.elr": aElr, "b.op": aOp,
+      "b.fail": f["Failure Date"]||"", "b.back": f["Date in order"]||"", "b.notes": f["Notes"]||""
+    };
+    updateOverlay('pdf-b-overlay', binds, 'b');
   }
 
   function refreshForms(){
     fillFIN('a-fin', openFaults());
     fillFIN('b-fin', closedFaults());
-    fillFormA();
-    fillFormB();
+    fillFormA(); fillFormB();
   }
 
-  function csvDownload(filename, headers, rows){ 
+  function csvDownload(filename, headers, rows){
     function esc(s){ s=(s==null?'':String(s)).replaceAll('"','""'); return '"' + s + '"'; }
     const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
     const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
@@ -480,7 +571,9 @@
   function csvFaults(){
     const q=(document.getElementById('flt-q').value||"").toLowerCase();
     const headers=["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State"];
-    const rows = FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).map(f => headers.map(h => h==="State" ? stateOf(f) : ( (h in f ? f[h] : (byId(f.ID)||{} )[h]) || "" ) ));
+    const rows = FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).map(f =>
+      headers.map(h => h==="State" ? stateOf(f) : ( (h in f ? f[h] : (byId(f.ID)||{} )[h]) || "" ) )
+    );
     csvDownload("faultlog.csv", headers, rows);
   }
 
@@ -492,7 +585,6 @@
     a.click();
   }
 
-  // First paint with built-in static + seeded faults (Supabase will overwrite with latest)
   function refreshAll(){
     recomputeAssets();
     renderOverview();
@@ -501,18 +593,90 @@
     renderFaults();
     refreshForms();
   }
-  window.refreshAll = refreshAll; // <-- expose for the module
+  window.refreshAll = refreshAll;
 
-  // Initial render of static page content
+  // Initial render
   refreshAll();
 
-  // input listeners
+  // inputs
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
   document.getElementById('flt-q').addEventListener('input', renderFaults);
   document.getElementById('a-fin').addEventListener('change', fillFormA);
   document.getElementById('b-fin').addEventListener('change', fillFormB);
   document.getElementById('a-signed').addEventListener('input', fillFormA);
   document.getElementById('b-signed').addEventListener('input', fillFormB);
+</script>
+
+<!-- === PDF.js === -->
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+  async function renderPDFInto(pdfUrl, canvasId){
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.6 });
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+  }
+
+  function updateOverlay(overlayId, binds){
+    const root = document.getElementById(overlayId);
+    if(!root) return;
+    root.querySelectorAll('[data-bind]').forEach(el => {
+      const key = el.getAttribute('data-bind');
+      el.textContent = binds[key] || '';
+    });
+    // apply current nudge
+    const wrap = root.parentElement;
+    const nx = Number(wrap.getAttribute('data-nx')||'0');
+    const ny = Number(wrap.getAttribute('data-ny')||'0');
+    root.style.transform = `translate(${nx}px, ${ny}px)`;
+  }
+
+  function wirePdfMode(form){
+    const useChk  = document.getElementById(`${form}-use-pdf`);
+    const wrap    = document.getElementById(`pdf-${form}-wrap`);
+    const paper   = document.getElementById(`form-${form}`);
+    const nxInp   = document.getElementById(`${form}-nudge-x`);
+    const nyInp   = document.getElementById(`${form}-nudge-y`);
+    const reset   = document.getElementById(`${form}-reset-nudge`);
+
+    const apply = () => {
+      const use = !!useChk.checked;
+      wrap.style.display  = use ? 'block' : 'none';
+      paper.style.display = use ? 'none'  : 'block';
+    };
+    apply();
+    useChk.addEventListener('change', apply);
+
+    function pushNudge(){
+      wrap.setAttribute('data-nx', String(Number(nxInp.value||0)));
+      wrap.setAttribute('data-ny', String(Number(nyInp.value||0)));
+      // re-apply transform
+      const ovId = `pdf-${form}-overlay`;
+      updateOverlay(ovId, {}); // content already set by form fill
+    }
+    nxInp.addEventListener('input', pushNudge);
+    nyInp.addEventListener('input', pushNudge);
+    reset.addEventListener('click', () => { nxInp.value=0; nyInp.value=0; pushNudge(); });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Render both backgrounds
+    await renderPDFInto('Blank PDF F3.21A.pdf', 'pdf-a-canvas').catch(console.error);
+    await renderPDFInto('Blank PDF F3.21B.pdf', 'pdf-b-canvas').catch(console.error);
+
+    // Wire toggles and nudges
+    wirePdfMode('a');
+    wirePdfMode('b');
+
+    // One more refresh to push text into overlays
+    if (window.refreshAll) window.refreshAll();
+  });
 </script>
 
 <!-- === Supabase FAULTS snapshots (append-only) === -->
@@ -523,10 +687,7 @@
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-  // Guard in case the main script hasn't created it yet
   if (!Array.isArray(window.FAULTS)) window.FAULTS = [];
-
-  // snapshot of the built-in defaults for first-run seed
   const DEFAULT_FAULTS = JSON.parse(JSON.stringify(window.FAULTS || []));
 
   function applyFaults(faults){
@@ -540,11 +701,9 @@
       .select("faults")
       .order("created_at", { ascending: false })
       .limit(1);
-
     if (error) throw error;
 
     if (!data || !data[0] || !Array.isArray(data[0].faults)) {
-      // seed with the static defaults on first run
       applyFaults(DEFAULT_FAULTS);
       const { error: insErr } = await sb.from("fault_snapshots").insert({ faults: DEFAULT_FAULTS });
       if (insErr) console.warn("Seed insert failed:", insErr.message);
@@ -562,14 +721,12 @@
     console.log("Saved new FAULTS snapshot");
   }
 
-  // debounced autosave, used by the main script via window.queueSave()
   let _t;
   window.queueSave = function queueSave(){
     clearTimeout(_t);
     _t = setTimeout(() => { saveSnapshot().catch(e => alert("Save failed: " + e.message)); }, 800);
   };
 
-  // tiny test bar (optional)
   function ensureTestButtons(){
     if(document.getElementById("sb-test-bar")) return;
     const bar = document.createElement("div");
@@ -588,14 +745,12 @@
     ensureTestButtons();
     loadFaults()
       .then(() => {
-        // autosave all inputs automatically
         document.querySelectorAll('input, textarea, select')
           .forEach(el => el.addEventListener('input', window.queueSave));
       })
       .catch(e => alert("Load failed: " + e.message));
   });
 
-  // expose for console/manual use
   window.loadFaults = loadFaults;
   window.saveSnapshot = saveSnapshot;
 </script>
