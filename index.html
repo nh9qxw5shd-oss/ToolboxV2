@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HABD-WILD EM — v8 (Supabase snapshots, exact A/B forms)</title>
+<title>HABD-WILD EM — v8 (Supabase snapshots, ASSETS static)</title>
+
 <style>
   :root { --bg:#0f1116; --panel:#161b26; --ink:#e9ecf2; --muted:#9aa3b2; --border:#2a2f3a; --accent:#7aa2f7 }
   * { box-sizing:border-box }
@@ -31,60 +32,38 @@
   .w160 { width:160px }
   .no-print { display:inline-flex }
 
-  /* ===== Print and one-page A4 ===== */
-  @page { size: A4; margin: 12mm }
+  /* Hide test bar entirely */
+  #sb-test-bar { display:none !important }
+
+  /* === FORM PAGES (A4 single page) === */
+  @page { size: A4; margin: 8mm }
+  .a4 { width: 190mm; margin: 0 auto; background:#fff; color:#000; }
+  .form-sheet { border:0.75pt solid #005172; padding:6mm; font-family: Arial, Helvetica, sans-serif; }
+  .np-head-left { background:#ccffcc; }
+  .np-head-right { background:#009900; color:#fff; text-align:left }
+  .np-slab { background:#3a9fbe; color:#fff; font-weight:700 }
+  .np-border { border:0.75pt solid #005172 }
+  .np-box { min-height:7mm; border:0.75pt solid #005172; padding:3mm 4mm; }
+  .h-grid td { vertical-align:top; }
+  .xcell { text-align:center; font-weight:bold; }
+  .np-footer { border-top:0.75pt solid #808080; padding-top:1pt; font-size:10pt; }
+  .tight { padding:2mm 3mm }
+  .np-title { text-align:center; font-weight:700 }
+  .np-hr { height:2mm }
+
+  /* Print clean: only the form content */
   @media print {
-    header, .tabs, .panel > .control, .no-print, .table-scroll, .panel > .control + .control { display:none !important }
+    header, .tabs, .panel > .control, .no-print, #sb-test-bar { display:none !important }
     body { background:#fff; color:#000 }
-    .form-paper { border:none; padding:0; margin:0 auto; width: 190mm; }
+    main { padding:0 }
+    .panel { border:none; padding:0; margin:0 }
+    .a4 { border:none; width:auto }
+    a { text-decoration:none; color:#000 }
   }
 
-  /* ===== Exact-like PDF form styling (from your standalone A/B) ===== */
-  :root{
-    --tint-bar:#efefef;
-    --tint-grid:#fafafa;
-  }
-  .form-paper {
-    background:#fff; color:#000; border:1.5px solid #000; width: 190mm; margin: 0 auto; padding: 10mm;
-    font-family: "Times New Roman", Georgia, serif;
-  }
-  .hdr{
-    display:grid; grid-template-columns:auto 1fr auto;
-    column-gap:8mm; row-gap:2mm; align-items:center; margin-bottom:5.5mm; color:#000;
-  }
-  .hdr-left{font-size:13.25px; line-height:1.2}
-  .hdr-left b{font-weight:800}
-  .hdr-mid{text-align:center}
-  .hdr-mid .title{font-size:18.2px; font-weight:800; text-transform:uppercase; letter-spacing:.2px}
-  .hdr-mid .small{font-size:12.2px}
-  .hdr-right{font-size:13.25px; text-align:right}
-  .hdr-right b{font-weight:700}
-  .bar{
-    display:flex; justify-content:space-between; align-items:center;
-    border:1px solid #000; padding:3.2mm 4mm; margin-bottom:5.5mm; font-size:13.2px;
-    background:var(--tint-bar); color:#000;
-  }
-  .cap{
-    border:1px solid #000; border-bottom:none;
-    background:var(--tint-bar); padding:2.5mm 3mm; font-size:13px; font-weight:700; color:#000;
-  }
-  .grid{width:100%; border:1.2px solid #000; border-collapse:collapse; table-layout:fixed; margin-bottom:0}
-  .grid th,.grid td{border:1px solid #000; padding:3mm; vertical-align:top}
-  .grid .lab{width:46mm; font-weight:700; text-transform:uppercase}
-  .grid .fill{background:var(--tint-grid)}
-  .pair{display:grid; grid-template-columns: 26mm 1fr; column-gap:3mm; align-items:center}
-  .lab2{font-weight:700; color:#000}
-  .inline{display:grid; grid-template-columns: 1fr 1fr; gap:4mm}
-  .xline{display:grid; grid-template-columns:22mm 1fr 1fr; gap:6mm; align-items:center; margin:4.2mm 0}
-  .tick{display:inline-grid; grid-template-columns: 7.8mm auto; gap:3.2mm; align-items:center; color:#000}
-  .box{width:7.8mm; height:7.8mm; border:1px solid #000; display:inline-block; position:relative; background:#fff}
-  .box[data-x="1"]::after{content:"X"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12.2px; color:#000}
-  .field{
-    width:100%; border:1px solid #000; min-height:7.2mm; padding:1.4mm 2mm; box-sizing:border-box; 
-    font-family: "Times New Roman", Georgia, serif; font-size:13.1px; background:#fff; color:#000;
-  }
-  .note{font-size:12px; margin-top:6mm; color:#000}
-  .printbar { display:flex; gap:8px; justify-content:flex-end; margin-bottom:6mm }
+  /* === Tiny sizing tweaks JUST for the Fault Log inputs === */
+  .fms-input { width: 9ch; min-width: 9ch; }
+  .notes-input { min-width: 42ch; }
 </style>
 </head>
 
@@ -123,7 +102,8 @@
       <div class="control">
         <select id="book-id" class="w160"></select>
         <input id="book-fms" class="w160" placeholder="FMS ref">
-        <input id="book-fail" class="w160" placeholder="Failure date (DD/MM/YYYY HH:MM)">
+        <!-- changed to datetime-local -->
+        <input id="book-fail" class="w160" type="datetime-local" placeholder="Failure date/time">
         <input id="book-notes" class="fit" placeholder="Notes (free text)">
         <button class="btn" onclick="bookFault()">Book fault</button>
         <button class="btn ghost" onclick="exportBackup()">Export backup (JSON)</button>
@@ -143,152 +123,159 @@
           <tbody id="flt-body"></tbody>
         </table>
       </div>
-      <div style="margin-top:6px; color:var(--muted); font-size:12px">
-        Editable: FMS, Failure Date, Date in order, Notes. Open = Date in order blank. Use "Close now" per-row or bulk close by ID.
-      </div>
+      <div style="margin-top:6px; color:var(--muted); font-size:12px">Editable: FMS, Failure Date, Date in order, Notes. Open = Date in order blank. Use “Close now” per-row or bulk close by ID.</div>
     </div>
   </section>
 
-  <!-- =================== F3.21A (exact-like) =================== -->
+  <!-- ==================== F3.21A (Outage) ==================== -->
   <section id="tab-f321a" class="tab">
     <div class="panel">
-      <div class="printbar no-print">
+      <div class="control no-print">
+        <select id="a-fin" class="w160"></select>
+        <input id="a-signed" class="w160" placeholder="Signed by">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
 
-      <div class="control">
-        <select id="a-fin" class="w160"></select>
-        <input id="a-signed" class="w160" placeholder="Signed by">
-        <button class="btn ghost" onclick="fillFormA()">Refresh</button>
-      </div>
+      <div class="a4">
+        <div class="form-sheet" id="formA">
+          <!-- Header -->
+          <table class="np-border" style="width:100%; border-collapse:collapse">
+            <tr>
+              <td class="np-head-left np-border" style="width:75%; padding:6px;">
+                <div style="font-weight:700; font-size:14pt">NATIONAL OPERATING PROCEDURES</div>
+                <div style="font-weight:700; font-size:11pt; margin-top:2px">ADVICE OF SYSTEM OUTAGE (FAILURE OR DISCONNECTION)</div>
+              </td>
+              <td class="np-head-right np-border" style="width:25%; padding:6px;">
+                <div><strong>Form:</strong>&nbsp;F3.21A</div>
+                <div><strong>Issue:</strong>&nbsp;01</div>
+                <div><strong>Date:</strong>&nbsp;02/09/17</div>
+              </td>
+            </tr>
+          </table>
 
-      <div class="form-paper" id="form-a">
-        <div class="hdr">
-          <div class="hdr-left">
-            <div><b>NATIONAL OPERATING PROCEDURES</b></div>
-            <div>Form: <b>F3.21A</b></div>
+          <div class="np-hr"></div>
+          <div class="np-title">DEFECTIVE HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</div>
+          <div class="np-title" style="text-transform:uppercase; margin-top:2mm;">Advice of System Outage (Failure or Disconnection)</div>
+          <div class="np-title" style="margin-top:2mm;"><strong>Unique reference No:&nbsp;
+            <span id="a-uniq" class="np-box" style="display:inline-block; min-width:40mm"></span></strong>
           </div>
-          <div class="hdr-mid">
-            <div class="title">ADVICE OF SYSTEM OUT OF ORDER</div>
-            <div class="small">System Operations – NOP F3.21A&nbsp;&nbsp;Page: 1 of 1</div>
+
+          <!-- System row -->
+          <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
+            <tr>
+              <td class="np-slab np-border" style="width:16%"><div class="tight">SYSTEM :</div></td>
+              <td class="np-border" style="width:22%"><div class="tight">Hot Axle Box Detector</div></td>
+              <td class="np-border" style="width:10%"><div id="a-x-habd" class="xcell tight">&nbsp;</div></td>
+              <td class="np-border" style="width:30%"><div class="tight">Wheel Impact Load Detector</div></td>
+              <td class="np-border" style="width:10%"><div id="a-x-wild" class="xcell tight">&nbsp;</div></td>
+            </tr>
+            <tr><td colspan="5" class="np-border" style="height:10mm"></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">TIME:</div></td><td colspan="4" class="np-border"><div id="a-time" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td colspan="4" class="np-border"><div id="a-date" class="tight"></div></td></tr>
+          </table>
+
+          <!-- Route block -->
+          <table class="np-border h-grid" style="width:100%; margin-top:6mm; border-collapse:collapse">
+            <tr><td class="np-slab np-border" style="width:16%"><div class="tight">Route:</div></td><td class="np-border"><div id="a-route" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">ELR:</div></td><td class="np-border"><div id="a-elr" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Location:</div></td><td class="np-border"><div id="a-loc" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Line:</div></td><td class="np-border"><div id="a-line" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Miles / Chains:</div></td><td class="np-border"><div id="a-miles" class="tight"></div></td></tr>
+          </table>
+
+          <div style="margin:10mm 0 12mm 0;">
+            I will advise you when the system is reinstated but in the meantime, please apply your company maintenance instructions for vehicles that use this route.
           </div>
-          <div class="hdr-right">
-            <div>Issue: <b>01</b></div>
-            <div>Date: <b>02/09/17</b></div>
+
+          <!-- Signed -->
+          <table class="np-border h-grid" style="width:100%; border-collapse:collapse">
+            <tr>
+              <td class="np-slab np-border" style="width:12%"><div class="tight">SIGNED:</div></td>
+              <td class="np-border" style="width:60%"><div id="a-signed-val" class="tight"></div></td>
+              <td class="np-slab np-border" style="width:10%"><div class="tight">DATE:</div></td>
+              <td class="np-border" style="width:18%"><div id="a-signed-date" class="tight"></div></td>
+            </tr>
+          </table>
+
+          <div class="np-footer" style="margin-top:6mm;">
+            <strong>System Operations – NOP F3.21A</strong><span style="display:inline-block; width:50%"></span><strong>Page:</strong> 1 of 1
           </div>
-        </div>
-
-        <div class="bar">
-          <div><b>HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</b></div>
-          <div><b>NOTICE OF SYSTEM OUT OF ORDER</b></div>
-        </div>
-
-        <div class="xline" style="margin-top:2mm">
-          <div class="lab2"><b>SYSTEM:</b></div>
-          <label class="tick"><span id="aHABD" class="box" data-x="0"></span><span>Hot Axle Box Detector</span></label>
-          <label class="tick"><span id="aWILD" class="box" data-x="0"></span><span>Wheel Impact Load Detector</span></label>
-        </div>
-
-        <table class="grid">
-          <tr>
-            <th class="lab">UNIQUE REFERENCE</th><td class="fill"><input id="aFms" class="field"></td>
-            <th class="lab">FIN</th><td class="fill"><input id="aFin" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">ROUTE</th><td><input id="aRoute" class="field"></td>
-            <th class="lab">ELR</th><td><input id="aElr" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">LOCATION</th><td><input id="aLoc" class="field"></td>
-            <th class="lab">LINE</th><td><input id="aLine" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">MILES</th><td><input id="aMiles" class="field"></td>
-            <th class="lab">DATE/TIME</th><td><input id="aStamp" class="field"></td>
-          </tr>
-        </table>
-
-        <div class="cap" style="margin-top:5.2mm">AUTHORISATION</div>
-        <div class="inline" style="margin-top:0">
-          <div class="pair"><div class="lab2">SIGNED:</div><input id="aSigned" class="field" /></div>
-          <div class="pair"><div class="lab2">DATE:</div><input id="aSignedDate" class="field" /></div>
-        </div>
-
-        <div class="note">
-          Route Operations Control should advise all affected Train Operators operating over the route(s).
         </div>
       </div>
     </div>
   </section>
 
-  <!-- =================== F3.21B (exact-like) =================== -->
+  <!-- ==================== F3.21B (Reinstatement) ==================== -->
   <section id="tab-f321b" class="tab">
     <div class="panel">
-      <div class="printbar no-print">
+      <div class="control no-print">
+        <select id="b-fin" class="w160"></select>
+        <input id="b-signed" class="w160" placeholder="Signed by">
         <button class="btn" onclick="window.print()">Print to PDF</button>
       </div>
 
-      <div class="control">
-        <select id="b-fin" class="w160"></select>
-        <input id="b-signed" class="w160" placeholder="Signed by">
-        <button class="btn ghost" onclick="fillFormB()">Refresh</button>
-      </div>
+      <div class="a4">
+        <div class="form-sheet" id="formB">
+          <!-- Header -->
+          <table class="np-border" style="width:100%; border-collapse:collapse">
+            <tr>
+              <td class="np-head-left np-border" style="width:75%; padding:6px;">
+                <div style="font-weight:700; font-size:14pt">NATIONAL OPERATING PROCEDURES</div>
+                <div style="font-weight:700; font-size:11pt; margin-top:2px">ADVICE OF SYSTEM REINSTATEMENT</div>
+              </td>
+              <td class="np-head-right np-border" style="width:25%; padding:6px;">
+                <div><strong>Form:</strong>&nbsp;F3.21B</div>
+                <div><strong>Issue:</strong>&nbsp;01</div>
+                <div><strong>Date:</strong>&nbsp;02/09/17</div>
+              </td>
+            </tr>
+          </table>
 
-      <div class="form-paper" id="form-b">
-        <div class="hdr">
-          <div class="hdr-left">
-            <div><b>NATIONAL OPERATING PROCEDURES</b></div>
-            <div>Form: <b>F3.21B</b></div>
+          <div class="np-hr"></div>
+          <div class="np-title" style="text-transform:uppercase;">Defective Hot Axle Box Detector (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</div>
+          <div class="np-title" style="text-transform:uppercase; margin-top:2mm;">Advice of SYSTEM Reinstatement</div>
+          <div class="np-title" style="margin-top:2mm;"><strong>Unique reference No:&nbsp;
+            <span id="b-uniq" class="np-box" style="display:inline-block; min-width:40mm"></span></strong>
           </div>
-          <div class="hdr-mid">
-            <div class="title">ADVICE OF SYSTEM REINSTATEMENT</div>
-            <div class="small">System Operations – NOP F3.21B&nbsp;&nbsp;Page: 1 of 1</div>
+
+          <div style="margin-top:4mm;">Please note the HABD or WILD equipment, which was advised to you under the above reference as being out of use from:</div>
+
+          <!-- “From” time/date (Failure Date) -->
+          <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
+            <tr><td class="np-slab np-border" style="width:18%"><div class="tight">TIME:</div></td><td class="np-border"><div id="b-from-time" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td class="np-border"><div id="b-from-date" class="tight"></div></td></tr>
+          </table>
+
+          <div style="margin-top:6mm;">has been reinstated:</div>
+
+          <!-- “To” time/date (Date in order / close time) -->
+          <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
+            <tr><td class="np-slab np-border" style="width:18%"><div class="tight">TIME:</div></td><td class="np-border"><div id="b-to-time" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td class="np-border"><div id="b-to-date" class="tight"></div></td></tr>
+          </table>
+
+          <!-- Route block -->
+          <table class="np-border h-grid" style="width:100%; margin-top:6mm; border-collapse:collapse">
+            <tr><td class="np-slab np-border" style="width:18%"><div class="tight">Route:</div></td><td class="np-border"><div id="b-route" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">ELR:</div></td><td class="np-border"><div id="b-elr" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Location:</div></td><td class="np-border"><div id="b-loc" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Line:</div></td><td class="np-border"><div id="b-line" class="tight"></div></td></tr>
+            <tr><td class="np-slab np-border"><div class="tight">Miles / Chains:</div></td><td class="np-border"><div id="b-miles" class="tight"></div></td></tr>
+          </table>
+
+          <!-- Signed -->
+          <table class="np-border h-grid" style="width:100%; margin-top:10mm; border-collapse:collapse">
+            <tr>
+              <td class="np-slab np-border" style="width:12%"><div class="tight">SIGNED:</div></td>
+              <td class="np-border" style="width:60%"><div id="b-signed-val" class="tight"></div></td>
+              <td class="np-slab np-border" style="width:10%"><div class="tight">DATE:</div></td>
+              <td class="np-border" style="width:18%"><div id="b-signed-date" class="tight"></div></td>
+            </tr>
+          </table>
+
+          <div class="np-footer" style="margin-top:6mm;">
+            <strong>System Operations – NOP F3.21B</strong><span style="display:inline-block; width:50%"></span><strong>Page:</strong> 1 of 1
           </div>
-          <div class="hdr-right">
-            <div>Issue: <b>01</b></div>
-            <div>Date: <b>02/09/17</b></div>
-          </div>
-        </div>
-
-        <div class="bar">
-          <div><b>HOT AXLE BOX DETECTOR (HABD) or WHEEL IMPACT LOAD DETECTOR (WILD)</b></div>
-          <div><b>ADVICE OF SYSTEM REINSTATEMENT</b></div>
-        </div>
-
-        <div class="xline" style="margin-top:2mm">
-          <div class="lab2"><b>SYSTEM:</b></div>
-          <label class="tick"><span id="bHABD" class="box" data-x="0"></span><span>Hot Axle Box Detector</span></label>
-          <label class="tick"><span id="bWILD" class="box" data-x="0"></span><span>Wheel Impact Load Detector</span></label>
-        </div>
-
-        <div class="inline" style="margin-top:3mm">
-          <div class="pair"><div class="lab2">TIME REINSTATED:</div><input id="bTime" class="field" /></div>
-          <div class="pair"><div class="lab2">DATE REINSTATED:</div><input id="bDate" class="field" /></div>
-        </div>
-
-        <table class="grid" style="margin-top:4mm">
-          <tr>
-            <th class="lab">UNIQUE REFERENCE</th><td class="fill"><input id="bFms" class="field"></td>
-            <th class="lab">FIN</th><td class="fill"><input id="bFin" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">ROUTE</th><td><input id="bRoute" class="field"></td>
-            <th class="lab">ELR</th><td><input id="bElr" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">LOCATION</th><td><input id="bLoc" class="field"></td>
-            <th class="lab">LINE</th><td><input id="bLine" class="field"></td>
-          </tr>
-          <tr>
-            <th class="lab">MILES</th><td><input id="bMiles" class="field"></td>
-            <th class="lab">DATE/TIME</th><td><input id="bStamp" class="field"></td>
-          </tr>
-        </table>
-
-        <div class="cap" style="margin-top:5.2mm">AUTHORISATION</div>
-        <div class="inline" style="margin-top:0">
-          <div class="pair"><div class="lab2">SIGNED:</div><input id="bSigned" class="field" /></div>
-          <div class="pair"><div class="lab2">DATE:</div><input id="bSignedDate" class="field" /></div>
         </div>
       </div>
     </div>
@@ -296,8 +283,7 @@
 </main>
 
 <script>
-  /* =================== STATIC DATA (seed – will be overwritten by snapshot) =================== */
-  // (same seed as your working file)
+  /* =================== STATIC DATA (unchanged by Supabase) =================== */
   window.ASSETS = [
     {"ID":"1","FIN":"","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Fast","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"OPERATIONAL"},
     {"ID":"2","FIN":"1","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"DEFECTIVE"},
@@ -332,6 +318,9 @@
     {"ID":"31","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Dn Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
     {"ID":"32","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up&Dn Slow (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"}
   ];
+  const ASSETS = window.ASSETS;
+
+  /* FAULTS are the ONLY thing persisted */
   window.FAULTS = [
     {"FIN":"1","ID":"2","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18","FMS":"180003","Failure Date":"2022-06-17 00:00:00","Date in order":"","Notes":"Reason unknown"},
     {"FIN":"2","ID":"4","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Fast","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","FMS":"179537","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
@@ -339,18 +328,64 @@
     {"FIN":"4","ID":"6","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Fast","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","FMS":"179530","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
     {"FIN":"5","ID":"7","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Slow","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","FMS":"178119","Failure Date":"2022-04-18 00:00:00","Date in order":"","Notes":"Reason unknown"}
   ];
-
-  const ASSETS = window.ASSETS;
   const FAULTS = window.FAULTS;
 
   /* ===== Helpers ===== */
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
+  function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
   function makeFIN(){ const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n)); const next = nums.length ? Math.max(...nums)+1 : 1; return String(next).padStart(4,'0'); }
   function stateOf(f){ return (f["Date in order"]||"").trim()==="" ? "Open" : "Closed"; }
-  function nowStr(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return dd + "/" + mm + "/" + yyyy + " " + HH + ":" + MM; }
+  function now(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return { date: dd+"/"+mm+"/"+yyyy, time: HH+":"+MM } }
 
-  function labelAsset(a){ return [a.ID, a.Location, a.ELR && ("ELR "+a.ELR), a.Mileage && ("@ "+a.Mileage)].filter(Boolean).join(" — "); }
-  function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
+  // Parse helpers
+  function toISOLocal(s){
+    if(!s) return "";
+    if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return s;
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+    if(m) return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}`;
+    m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})/);
+    if(m) return `${m[3]}-${m[2]}-${m[1]}T${m[4]}:${m[5]}`;
+    return "";
+  }
+  function fromISOToParts(iso){
+    if(!iso) return {date:"", time:""};
+    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if(!m) return {date:"", time:""};
+    return { date:`${m[3]}/${m[2]}/${m[1]}`, time:`${m[4]}:${m[5]}` };
+  }
+  function parseLegacyParts(s){
+    if(!s) return {date:"", time:""};
+    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})/);
+    if(!m) return {date:"", time:""};
+    return { date:`${m[1]}/${m[2]}/${m[3]}`, time:`${m[4]}:${m[5]}` };
+  }
+
+  function recomputeAssets(){
+    ASSETS.forEach(a => {
+      const related = FAULTS.filter(f => f.ID===a.ID);
+      const open = related.filter(f => stateOf(f)==="Open");
+      if(open.length){
+        open.sort((x,y) => toISOLocal(y["Failure Date"]||"").localeCompare(toISOLocal(x["Failure Date"]||"")));
+        a["Operational Status"] = "Defective";
+        a["FIN"] = open[0].FIN || a["FIN"] || "";
+      }else{
+        a["Operational Status"] = "Operational";
+        a["FIN"] = "";
+      }
+    });
+    fillCloseId();
+  }
+
+  /* ===== Tabs ===== */
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      refreshAll();
+    });
+  });
 
   /* ===== Overview ===== */
   const OHEAD = ["ID","FIN","Controlling SB","Location","Line","Route","ELR","Mileage","Operational Status"];
@@ -366,15 +401,18 @@
         const td=document.createElement('td');
         if(k==="Operational Status"){
           td.innerHTML = (a[k]||"").toLowerCase().startsWith("defect") ? '<span class="badge r">Defective</span>' : '<span class="badge g">Operational</span>';
-        } else { td.textContent = a[k]||""; }
+        } else {
+          td.textContent = a[k]||"";
+        }
         tr.appendChild(td);
       });
       body.appendChild(tr);
     });
     document.getElementById('ovr-count').textContent = list.length + " assets";
   }
+  document.getElementById('ovr-q').addEventListener('input', renderOverview);
 
-  /* ===== Fault log ===== */
+  function labelAsset(a){ return [a.ID, a.Location, a.ELR && ("ELR "+a.ELR), a.Mileage && ("@ "+a.Mileage)].filter(Boolean).join(" — "); }
   function fillBookAsset(){
     const sel = document.getElementById('book-id'); sel.innerHTML="";
     const o=document.createElement('option'); o.value=""; o.textContent="Select asset ID..."; sel.appendChild(o);
@@ -391,6 +429,8 @@
       sel.appendChild(opt);
     });
   }
+
+  /* ===== Faults table ===== */
   const FHEAD = ["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State","Action"];
   function renderFaults(){
     const q=(document.getElementById('flt-q').value||"").toLowerCase();
@@ -399,10 +439,21 @@
     FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).forEach((f) => {
       const tr=document.createElement('tr');
       function tdText(txt){ const td=document.createElement('td'); td.textContent=txt; return td; }
-      function tdInput(val, field){
+      function tdInput(val, field, type, extraClass){
         const td=document.createElement('td');
-        const inp=document.createElement('input'); inp.className="fit"; inp.value = val||"";
-        inp.addEventListener('input', () => { f[field]=inp.value; recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
+        const inp=document.createElement('input');
+        inp.className="fit" + (extraClass?(" "+extraClass):"");
+        if(type==="dt"){
+          inp.type="datetime-local";
+          inp.value = toISOLocal(val||"");
+        } else {
+          inp.value = val||"";
+        }
+        inp.addEventListener('input', () => {
+          f[field] = (type==="dt") ? inp.value : inp.value;
+          recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
+          if(window.queueSave) window.queueSave();
+        });
         td.appendChild(inp); return td;
       }
       const a = byId(f.ID)||{};
@@ -414,66 +465,85 @@
       tr.appendChild(tdText(a["Route"]||f["Route"]||""));
       tr.appendChild(tdText(a["ELR"]||f["ELR"]||""));
       tr.appendChild(tdText(a["Mileage"]||f["Mileage"]||""));
-      tr.appendChild(tdInput(f["FMS"], "FMS"));
-      tr.appendChild(tdInput(f["Failure Date"], "Failure Date"));
+      /* FMS: make visibly wide enough for 6 digits */
+      tr.appendChild(tdInput(f["FMS"], "FMS", undefined, "fms-input"));
+      /* Failure Date: datetime-local */
+      tr.appendChild(tdInput(f["Failure Date"], "Failure Date", "dt"));
+      /* Date in order: keep simple */
       tr.appendChild(tdInput(f["Date in order"], "Date in order"));
-      const tdN=document.createElement('td'); const ta=document.createElement('input'); ta.className="fit"; ta.value=f["Notes"]||""; ta.addEventListener('input', ()=>{ f["Notes"]=ta.value; refreshForms(); if(window.queueSave) window.queueSave(); }); tdN.appendChild(ta); tr.appendChild(tdN);
+      /* Notes: visibly wider for a short sentence */
+      const tdN=document.createElement('td');
+      const notes=document.createElement('input');
+      notes.className="fit notes-input";
+      notes.value=f["Notes"]||"";
+      notes.addEventListener('input', ()=>{ f["Notes"]=notes.value; refreshForms(); if(window.queueSave) window.queueSave(); });
+      tdN.appendChild(notes);
+      tr.appendChild(tdN);
+
       const tdS=document.createElement('td'); tdS.innerHTML = stateOf(f)==="Open" ? '<span class="badge r">Open</span>' : '<span class="badge g">Closed</span>'; tr.appendChild(tdS);
       const tdA=document.createElement('td');
       const b=document.createElement('button'); b.className="btn small no-print"; b.textContent="Close now";
-      b.addEventListener('click', () => { f["Date in order"]=nowStr(); recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
+      b.addEventListener('click', () => { const t=now(); f["Date in order"]=t.date+" "+t.time; recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
       tdA.appendChild(b); tr.appendChild(tdA);
       body.appendChild(tr);
     });
     document.getElementById('flt-count').textContent = FAULTS.length + " rows";
   }
+
   function bookFault(){
     const id=(document.getElementById('book-id').value||"").trim();
     const fms=(document.getElementById('book-fms').value||"").trim();
-    const fail=(document.getElementById('book-fail').value||"").trim();
+    const failISO=(document.getElementById('book-fail').value||"").trim(); // ISO from datetime-local
     const notes=(document.getElementById('book-notes').value||"").trim();
     if(!id){ alert("Select an asset ID first."); return; }
     if(!fms){ alert("Enter FMS ref."); return; }
-    if(!fail){ alert("Enter Failure date/time (DD/MM/YYYY HH:MM)."); return; }
+    if(!failISO){ alert("Pick Failure date/time."); return; }
     const fin = makeFIN();
     const a = byId(id) || {};
     FAULTS.unshift({
-      "FIN": fin,"ID": id,
-      "Controlling SB": a["Controlling SB"]||"","Location": a["Location"]||"",
-      "Line": a["Line"]||"","Route": a["Route"]||"",
-      "ELR": a["ELR"]||"","Mileage": a["Mileage"]||"",
-      "FMS": fms,"Failure Date": fail,"Date in order": "","Notes": notes
+      "FIN": fin,
+      "ID": id,
+      "Controlling SB": a["Controlling SB"]||"",
+      "Location": a["Location"]||"",
+      "Line": a["Line"]||"",
+      "Route": a["Route"]||"",
+      "ELR": a["ELR"]||"",
+      "Mileage": a["Mileage"]||"",
+      "FMS": fms,
+      "Failure Date": failISO,
+      "Date in order": "",
+      "Notes": notes
     });
-    recomputeAssets(); renderOverview(); renderFaults(); refreshForms();
+    recomputeAssets();
+    renderOverview();
+    renderFaults();
+    refreshForms();
     if(window.queueSave) window.queueSave();
-    document.getElementById('book-fms').value=""; document.getElementById('book-fail').value=""; document.getElementById('book-notes').value="";
+    document.getElementById('book-fms').value="";
+    document.getElementById('book-fail').value="";
+    document.getElementById('book-notes').value="";
   }
+
   function closeAllForId(){
     const id=(document.getElementById('close-id').value||"").trim();
     if(!id){ alert("Pick an ID to bulk close."); return; }
-    let changed = false;
-    FAULTS.forEach(f => { if(f.ID===id && stateOf(f)==="Open"){ f["Date in order"] = nowStr(); changed = true; }});
-    if(changed){ recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); }
-  }
-
-  /* ===== FIN logic affects assets and forms ===== */
-  function recomputeAssets(){
-    ASSETS.forEach(a => {
-      const related = FAULTS.filter(f => f.ID===a.ID);
-      const open = related.filter(f => stateOf(f)==="Open");
-      if(open.length){
-        open.sort((x,y) => (y["Failure Date"]||"").localeCompare(x["Failure Date"]||""));
-        a["Operational Status"] = "Defective";
-        a["FIN"] = open[0].FIN || a["FIN"] || "";
-      }else{
-        a["Operational Status"] = "Operational";
-        a["FIN"] = "";
+    let changed = false; const t=now();
+    FAULTS.forEach(f => {
+      if(f.ID===id && stateOf(f)==="Open"){
+        f["Date in order"] = t.date+" "+t.time;
+        changed = true;
       }
     });
-    fillCloseId();
+    if(changed){
+      recomputeAssets();
+      refreshForms();
+      renderOverview();
+      renderFaults();
+      if(window.queueSave) window.queueSave();
+    }
   }
 
-  /* ===== Forms wiring (A/B) ===== */
+  /* ===== Forms: selectors & population ===== */
   function openFaults(){ return FAULTS.filter(f => stateOf(f)==="Open"); }
   function closedFaults(){ return FAULTS.filter(f => stateOf(f)==="Closed"); }
   function labelFault(f){ const a=byId(f.ID)||{}; const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean); return bits.join(" — "); }
@@ -483,56 +553,66 @@
     list.forEach(f => { const opt=document.createElement('option'); opt.value=f.FIN; opt.textContent=labelFault(f); sel.appendChild(opt); });
   }
 
-  function fillFormA(){
+  function populateFormA(){
     const fin=document.getElementById('a-fin').value;
     const sgn=document.getElementById('a-signed').value||"";
-    const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    const isWILD = ["30","31","32"].includes(a.ID||"");
-    document.getElementById('aHABD').dataset.x = isWILD ? "0" : "1";
-    document.getElementById('aWILD').dataset.x = isWILD ? "1" : "0";
-    document.getElementById('aFms').value = f.FMS||"";
-    document.getElementById('aFin').value = f.FIN||"";
-    document.getElementById('aRoute').value = a.Route||f.Route||"";
-    document.getElementById('aElr').value = a.ELR||f.ELR||"";
-    document.getElementById('aLoc').value = a.Location||f.Location||"";
-    document.getElementById('aLine').value = a.Line||f.Line||"";
-    document.getElementById('aMiles').value = a.Mileage||f.Mileage||"";
-    document.getElementById('aStamp').value = nowStr();
-    document.getElementById('aSigned').value = sgn;
-    document.getElementById('aSignedDate').value = nowStr().split(" ")[0];
+    const f=getFault(fin)||{}; const a=byId(f.ID||"")||{};
+    const t=now();
+    document.getElementById('a-uniq').textContent = f.FMS||"";
+    const wildIds = new Set(["30","31","32"]);
+    document.getElementById('a-x-habd').textContent = wildIds.has(a.ID||"") ? "" : "X";
+    document.getElementById('a-x-wild').textContent = wildIds.has(a.ID||"") ? "X" : "";
+    document.getElementById('a-time').textContent = t.time;
+    document.getElementById('a-date').textContent = t.date;
+    document.getElementById('a-route').textContent = a.Route||"";
+    document.getElementById('a-elr').textContent   = a.ELR||"";
+    document.getElementById('a-loc').textContent   = a.Location||"";
+    document.getElementById('a-line').textContent  = a.Line||"";
+    document.getElementById('a-miles').textContent = a.Mileage||"";
+    document.getElementById('a-signed-val').textContent = sgn;
+    document.getElementById('a-signed-date').textContent = t.date;
   }
-  function fillFormB(){
+
+  function populateFormB(){
     const fin=document.getElementById('b-fin').value;
     const sgn=document.getElementById('b-signed').value||"";
-    const f=getFault(fin) || {}; const a=byId(f.ID||"")||{};
-    const wild = ["30","31","32"].includes(a.ID||"");
-    document.getElementById('bHABD').dataset.x = wild ? "0" : "1";
-    document.getElementById('bWILD').dataset.x = wild ? "1" : "0";
-    const back = f["Date in order"] || nowStr();
-    const [bd,bt] = back.includes(" ") ? back.split(" ") : [back,""];
-    document.getElementById('bTime').value = bt || "";
-    document.getElementById('bDate').value = bd || "";
-    document.getElementById('bFms').value = f.FMS||"";
-    document.getElementById('bFin').value = f.FIN||"";
-    document.getElementById('bRoute').value = a.Route||f.Route||"";
-    document.getElementById('bElr').value = a.ELR||f.ELR||"";
-    document.getElementById('bLoc').value = a.Location||f.Location||"";
-    document.getElementById('bLine').value = a.Line||f.Line||"";
-    document.getElementById('bMiles').value = a.Mileage||f.Mileage||"";
-    document.getElementById('bStamp').value = nowStr();
-    document.getElementById('bSigned').value = sgn;
-    document.getElementById('bSignedDate').value = nowStr().split(" ")[0];
+    const f=getFault(fin)||{}; const a=byId(f.ID||"")||{};
+    const t=now();
+
+    document.getElementById('b-uniq').textContent = f.FMS||"";
+
+    const fdISO = toISOLocal(f["Failure Date"]||"");
+    if(fdISO){
+      const p = fromISOToParts(fdISO);
+      document.getElementById('b-from-time').textContent = p.time;
+      document.getElementById('b-from-date').textContent = p.date;
+    } else {
+      const p = parseLegacyParts(f["Failure Date"]||"");
+      document.getElementById('b-from-time').textContent = p.time;
+      document.getElementById('b-from-date').textContent = p.date;
+    }
+
+    const back = (f["Date in order"]||"").trim();
+    if(back && back.includes(" ")){
+      const [dd, tt] = back.split(" ");
+      document.getElementById('b-to-time').textContent = tt||"";
+      document.getElementById('b-to-date').textContent = dd||"";
+    } else {
+      document.getElementById('b-to-time').textContent = t.time;
+      document.getElementById('b-to-date').textContent = t.date;
+    }
+
+    document.getElementById('b-route').textContent = a.Route||"";
+    document.getElementById('b-elr').textContent   = a.ELR||"";
+    document.getElementById('b-loc').textContent   = a.Location||"";
+    document.getElementById('b-line').textContent  = a.Line||"";
+    document.getElementById('b-miles').textContent = a.Mileage||"";
+
+    document.getElementById('b-signed-val').textContent = sgn;
+    document.getElementById('b-signed-date').textContent = t.date;
   }
 
-  function refreshForms(){
-    fillFIN('a-fin', openFaults());
-    fillFIN('b-fin', closedFaults());
-    fillFormA();
-    fillFormB();
-  }
-
-  /* ===== CSV export and backup ===== */
-  function csvDownload(filename, headers, rows){ 
+  function csvDownload(filename, headers, rows){
     function esc(s){ s=(s==null?'':String(s)).replaceAll('"','""'); return '"' + s + '"'; }
     const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
     const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
@@ -547,15 +627,29 @@
   function csvFaults(){
     const q=(document.getElementById('flt-q').value||"").toLowerCase();
     const headers=["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State"];
-    const rows = FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).map(f => headers.map(h => h==="State" ? stateOf(f) : ( (h in f ? f[h] : (byId(f.ID)||{} )[h]) || "" ) ));
+    const rows = FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).map(f => headers.map(h => {
+      if(h==="State") return stateOf(f);
+      const a = byId(f.ID)||{};
+      return (h in f ? f[h] : a[h]) || "";
+    }));
     csvDownload("faultlog.csv", headers, rows);
   }
+
   function exportBackup(){
     const blob = new Blob([JSON.stringify({faults: FAULTS}, null, 2)], {type:"application/json"});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download = "faults-backup.json"; a.click();
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download = "faults-backup.json";
+    a.click();
   }
 
-  /* ===== First paint ===== */
+  function refreshForms(){
+    fillFIN('a-fin', openFaults());
+    fillFIN('b-fin', closedFaults());
+    populateFormA();
+    populateFormB();
+  }
+
   function refreshAll(){
     recomputeAssets();
     renderOverview();
@@ -564,18 +658,15 @@
     renderFaults();
     refreshForms();
   }
-  window.refreshAll = refreshAll;
 
-  // Initial render
+  // Initial render + listeners
   refreshAll();
-
-  // Live listeners
   document.getElementById('ovr-q').addEventListener('input', renderOverview);
   document.getElementById('flt-q').addEventListener('input', renderFaults);
-  document.getElementById('a-fin').addEventListener('change', fillFormA);
-  document.getElementById('b-fin').addEventListener('change', fillFormB);
-  document.getElementById('a-signed').addEventListener('input', fillFormA);
-  document.getElementById('b-signed').addEventListener('input', fillFormB);
+  document.getElementById('a-fin').addEventListener('change', populateFormA);
+  document.getElementById('b-fin').addEventListener('change', populateFormB);
+  document.getElementById('a-signed').addEventListener('input', populateFormA);
+  document.getElementById('b-signed').addEventListener('input', populateFormB);
 </script>
 
 <!-- === Supabase FAULTS snapshots (append-only) === -->
@@ -600,6 +691,7 @@
       .select("faults")
       .order("created_at", { ascending: false })
       .limit(1);
+
     if (error) throw error;
 
     if (!data || !data[0] || !Array.isArray(data[0].faults)) {
@@ -620,13 +712,14 @@
     console.log("Saved new FAULTS snapshot");
   }
 
-  // debounced autosave
+  // debounced autosave, used by the main script via window.queueSave()
   let _t;
   window.queueSave = function queueSave(){
     clearTimeout(_t);
     _t = setTimeout(() => { saveSnapshot().catch(e => alert("Save failed: " + e.message)); }, 800);
   };
 
+  // test buttons deliberately *not* added (they’re hidden by CSS anyway)
   document.addEventListener('DOMContentLoaded', () => {
     loadFaults()
       .then(() => {
@@ -635,6 +728,9 @@
       })
       .catch(e => alert("Load failed: " + e.message));
   });
+
+  window.loadFaults = loadFaults;
+  window.saveSnapshot = saveSnapshot;
 </script>
 </body>
 </html>
