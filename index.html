@@ -9,7 +9,7 @@
   :root { --bg:#0f1116; --panel:#161b26; --ink:#e9ecf2; --muted:#9aa3b2; --border:#2a2f3a; --accent:#7aa2f7 }
   * { box-sizing:border-box }
   body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial }
-  header { background:var(--panel); border-bottom:1px solid var(--border); padding:14px 18px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap }
+  header { background:var(--panel); border-bottom:1px solid var(--border); padding:14px 18px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center }
   .tabs { display:flex; gap:8px; flex-wrap:wrap }
   .tab-btn { border:1px solid var(--border); background:transparent; color:var(--ink); padding:8px 10px; border-radius:8px; cursor:pointer }
   .tab-btn.active { background:var(--accent); color:#0b1021; border-color:var(--accent) }
@@ -60,21 +60,29 @@
     .a4 { border:none; width:auto }
     a { text-decoration:none; color:#000 }
   }
-
-  /* === Tiny sizing tweaks JUST for the Fault Log inputs === */
-  .fms-input { width: 9ch; min-width: 9ch; }
-  .notes-input { min-width: 42ch; }
 </style>
+
+<!-- html2pdf: used to render A4 PDFs client-side -->
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
 <header>
   <h3 style="margin:0">HABD-WILD EM — v8</h3>
+
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-overview">Overview</button>
     <button class="tab-btn" data-tab="tab-faultlog">Fault Log</button>
     <button class="tab-btn" data-tab="tab-f321a">F3.21A</button>
     <button class="tab-btn" data-tab="tab-f321b">F3.21B</button>
+  </div>
+
+  <!-- Just the toggle now; email is baked in -->
+  <div class="no-print" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted);">
+    <label>
+      Auto-email PDFs to <span style="color:var(--ink);font-weight:500;">bradley.garner@networkrail.co.uk</span>
+      <input id="auto-mail-toggle" type="checkbox" style="vertical-align:middle;margin-left:6px">
+    </label>
   </div>
 </header>
 
@@ -101,8 +109,7 @@
     <div class="panel">
       <div class="control">
         <select id="book-id" class="w160"></select>
-        <input id="book-fms" class="w160" placeholder="FMS ref">
-        <!-- changed to datetime-local -->
+        <input id="book-fms" class="w160" placeholder="FMS ref" style="min-width:110px">
         <input id="book-fail" class="w160" type="datetime-local" placeholder="Failure date/time">
         <input id="book-notes" class="fit" placeholder="Notes (free text)">
         <button class="btn" onclick="bookFault()">Book fault</button>
@@ -127,7 +134,7 @@
     </div>
   </section>
 
-  <!-- ==================== F3.21A (Outage) ==================== -->
+  <!-- ==================== F3.21A ==================== -->
   <section id="tab-f321a" class="tab">
     <div class="panel">
       <div class="control no-print">
@@ -138,7 +145,6 @@
 
       <div class="a4">
         <div class="form-sheet" id="formA">
-          <!-- Header -->
           <table class="np-border" style="width:100%; border-collapse:collapse">
             <tr>
               <td class="np-head-left np-border" style="width:75%; padding:6px;">
@@ -160,7 +166,6 @@
             <span id="a-uniq" class="np-box" style="display:inline-block; min-width:40mm"></span></strong>
           </div>
 
-          <!-- System row -->
           <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
             <tr>
               <td class="np-slab np-border" style="width:16%"><div class="tight">SYSTEM :</div></td>
@@ -174,7 +179,6 @@
             <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td colspan="4" class="np-border"><div id="a-date" class="tight"></div></td></tr>
           </table>
 
-          <!-- Route block -->
           <table class="np-border h-grid" style="width:100%; margin-top:6mm; border-collapse:collapse">
             <tr><td class="np-slab np-border" style="width:16%"><div class="tight">Route:</div></td><td class="np-border"><div id="a-route" class="tight"></div></td></tr>
             <tr><td class="np-slab np-border"><div class="tight">ELR:</div></td><td class="np-border"><div id="a-elr" class="tight"></div></td></tr>
@@ -187,7 +191,6 @@
             I will advise you when the system is reinstated but in the meantime, please apply your company maintenance instructions for vehicles that use this route.
           </div>
 
-          <!-- Signed -->
           <table class="np-border h-grid" style="width:100%; border-collapse:collapse">
             <tr>
               <td class="np-slab np-border" style="width:12%"><div class="tight">SIGNED:</div></td>
@@ -205,7 +208,7 @@
     </div>
   </section>
 
-  <!-- ==================== F3.21B (Reinstatement) ==================== -->
+  <!-- ==================== F3.21B ==================== -->
   <section id="tab-f321b" class="tab">
     <div class="panel">
       <div class="control no-print">
@@ -216,7 +219,6 @@
 
       <div class="a4">
         <div class="form-sheet" id="formB">
-          <!-- Header -->
           <table class="np-border" style="width:100%; border-collapse:collapse">
             <tr>
               <td class="np-head-left np-border" style="width:75%; padding:6px;">
@@ -240,7 +242,6 @@
 
           <div style="margin-top:4mm;">Please note the HABD or WILD equipment, which was advised to you under the above reference as being out of use from:</div>
 
-          <!-- “From” time/date (Failure Date) -->
           <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
             <tr><td class="np-slab np-border" style="width:18%"><div class="tight">TIME:</div></td><td class="np-border"><div id="b-from-time" class="tight"></div></td></tr>
             <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td class="np-border"><div id="b-from-date" class="tight"></div></td></tr>
@@ -248,13 +249,11 @@
 
           <div style="margin-top:6mm;">has been reinstated:</div>
 
-          <!-- “To” time/date (Date in order / close time) -->
           <table class="np-border h-grid" style="width:100%; margin-top:4mm; border-collapse:collapse">
             <tr><td class="np-slab np-border" style="width:18%"><div class="tight">TIME:</div></td><td class="np-border"><div id="b-to-time" class="tight"></div></td></tr>
             <tr><td class="np-slab np-border"><div class="tight">DATE:</div></td><td class="np-border"><div id="b-to-date" class="tight"></div></td></tr>
           </table>
 
-          <!-- Route block -->
           <table class="np-border h-grid" style="width:100%; margin-top:6mm; border-collapse:collapse">
             <tr><td class="np-slab np-border" style="width:18%"><div class="tight">Route:</div></td><td class="np-border"><div id="b-route" class="tight"></div></td></tr>
             <tr><td class="np-slab np-border"><div class="tight">ELR:</div></td><td class="np-border"><div id="b-elr" class="tight"></div></td></tr>
@@ -263,7 +262,6 @@
             <tr><td class="np-slab np-border"><div class="tight">Miles / Chains:</div></td><td class="np-border"><div id="b-miles" class="tight"></div></td></tr>
           </table>
 
-          <!-- Signed -->
           <table class="np-border h-grid" style="width:100%; margin-top:10mm; border-collapse:collapse">
             <tr>
               <td class="np-slab np-border" style="width:12%"><div class="tight">SIGNED:</div></td>
@@ -333,11 +331,22 @@
   /* ===== Helpers ===== */
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
   function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
-  function makeFIN(){ const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n)); const next = nums.length ? Math.max(...nums)+1 : 1; return String(next).padStart(4,'0'); }
+  function makeFIN(){
+    const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n));
+    const next = nums.length ? Math.max(...nums)+1 : 1;
+    return String(next).padStart(4,'0');
+  }
   function stateOf(f){ return (f["Date in order"]||"").trim()==="" ? "Open" : "Closed"; }
-  function now(){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); const HH=String(d.getHours()).padStart(2,'0'); const MM=String(d.getMinutes()).padStart(2,'0'); return { date: dd+"/"+mm+"/"+yyyy, time: HH+":"+MM } }
+  function now(){
+    const d=new Date();
+    const dd=String(d.getDate()).padStart(2,'0');
+    const mm=String(d.getMonth()+1).padStart(2,'0');
+    const yyyy=d.getFullYear();
+    const HH=String(d.getHours()).padStart(2,'0');
+    const MM=String(d.getMinutes()).padStart(2,'0');
+    return { date: dd+"/"+mm+"/"+yyyy, time: HH+":"+MM };
+  }
 
-  // Parse helpers
   function toISOLocal(s){
     if(!s) return "";
     if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return s;
@@ -439,10 +448,12 @@
     FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).forEach((f) => {
       const tr=document.createElement('tr');
       function tdText(txt){ const td=document.createElement('td'); td.textContent=txt; return td; }
-      function tdInput(val, field, type, extraClass){
+      function tdInput(val, field, type){
         const td=document.createElement('td');
         const inp=document.createElement('input');
-        inp.className="fit" + (extraClass?(" "+extraClass):"");
+        inp.className="fit";
+        if(field === "FMS"){ inp.style.minWidth = "112px"; }
+        if(field === "Notes"){ inp.style.minWidth = "320px"; }
         if(type==="dt"){
           inp.type="datetime-local";
           inp.value = toISOLocal(val||"");
@@ -465,26 +476,35 @@
       tr.appendChild(tdText(a["Route"]||f["Route"]||""));
       tr.appendChild(tdText(a["ELR"]||f["ELR"]||""));
       tr.appendChild(tdText(a["Mileage"]||f["Mileage"]||""));
-      /* FMS: make visibly wide enough for 6 digits */
-      tr.appendChild(tdInput(f["FMS"], "FMS", undefined, "fms-input"));
-      /* Failure Date: datetime-local */
+      tr.appendChild(tdInput(f["FMS"], "FMS"));
       tr.appendChild(tdInput(f["Failure Date"], "Failure Date", "dt"));
-      /* Date in order: keep simple */
       tr.appendChild(tdInput(f["Date in order"], "Date in order"));
-      /* Notes: visibly wider for a short sentence */
       const tdN=document.createElement('td');
-      const notes=document.createElement('input');
-      notes.className="fit notes-input";
-      notes.value=f["Notes"]||"";
-      notes.addEventListener('input', ()=>{ f["Notes"]=notes.value; refreshForms(); if(window.queueSave) window.queueSave(); });
-      tdN.appendChild(notes);
+      const ta=document.createElement('input');
+      ta.className="fit";
+      ta.style.minWidth="320px";
+      ta.value=f["Notes"]||"";
+      ta.addEventListener('input', ()=>{ f["Notes"]=ta.value; refreshForms(); if(window.queueSave) window.queueSave(); });
+      tdN.appendChild(ta);
       tr.appendChild(tdN);
-
-      const tdS=document.createElement('td'); tdS.innerHTML = stateOf(f)==="Open" ? '<span class="badge r">Open</span>' : '<span class="badge g">Closed</span>'; tr.appendChild(tdS);
+      const tdS=document.createElement('td');
+      tdS.innerHTML = stateOf(f)==="Open" ? '<span class="badge r">Open</span>' : '<span class="badge g">Closed</span>';
+      tr.appendChild(tdS);
       const tdA=document.createElement('td');
-      const b=document.createElement('button'); b.className="btn small no-print"; b.textContent="Close now";
-      b.addEventListener('click', () => { const t=now(); f["Date in order"]=t.date+" "+t.time; recomputeAssets(); refreshForms(); renderOverview(); renderFaults(); if(window.queueSave) window.queueSave(); });
-      tdA.appendChild(b); tr.appendChild(tdA);
+      const b=document.createElement('button');
+      b.className="btn small no-print";
+      b.textContent="Close now";
+      b.addEventListener('click', async () => {
+        const t=now();
+        f["Date in order"]=t.date+" "+t.time;
+        recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
+        if(window.queueSave) window.queueSave();
+        if(document.getElementById('auto-mail-toggle').checked){
+          try { await generateAndMailB(f.FIN); } catch(e){ console.warn("Auto B mail failed:", e); }
+        }
+      });
+      tdA.appendChild(b);
+      tr.appendChild(tdA);
       body.appendChild(tr);
     });
     document.getElementById('flt-count').textContent = FAULTS.length + " rows";
@@ -493,7 +513,7 @@
   function bookFault(){
     const id=(document.getElementById('book-id').value||"").trim();
     const fms=(document.getElementById('book-fms').value||"").trim();
-    const failISO=(document.getElementById('book-fail').value||"").trim(); // ISO from datetime-local
+    const failISO=(document.getElementById('book-fail').value||"").trim();
     const notes=(document.getElementById('book-notes').value||"").trim();
     if(!id){ alert("Select an asset ID first."); return; }
     if(!fms){ alert("Enter FMS ref."); return; }
@@ -519,6 +539,10 @@
     renderFaults();
     refreshForms();
     if(window.queueSave) window.queueSave();
+
+    if(document.getElementById('auto-mail-toggle').checked){
+      generateAndMailA(fin).catch(e => console.warn("Auto A mail failed:", e));
+    }
     document.getElementById('book-fms').value="";
     document.getElementById('book-fail').value="";
     document.getElementById('book-notes').value="";
@@ -527,11 +551,14 @@
   function closeAllForId(){
     const id=(document.getElementById('close-id').value||"").trim();
     if(!id){ alert("Pick an ID to bulk close."); return; }
-    let changed = false; const t=now();
+    let changed = false;
+    const t=now();
+    const justClosedFINs = [];
     FAULTS.forEach(f => {
       if(f.ID===id && stateOf(f)==="Open"){
         f["Date in order"] = t.date+" "+t.time;
         changed = true;
+        justClosedFINs.push(f.FIN);
       }
     });
     if(changed){
@@ -540,13 +567,22 @@
       renderOverview();
       renderFaults();
       if(window.queueSave) window.queueSave();
+      if(document.getElementById('auto-mail-toggle').checked){
+        Array.from(new Set(justClosedFINs)).forEach(fin => {
+          generateAndMailB(fin).catch(e => console.warn("Auto B mail failed:", e));
+        });
+      }
     }
   }
 
   /* ===== Forms: selectors & population ===== */
   function openFaults(){ return FAULTS.filter(f => stateOf(f)==="Open"); }
   function closedFaults(){ return FAULTS.filter(f => stateOf(f)==="Closed"); }
-  function labelFault(f){ const a=byId(f.ID)||{}; const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean); return bits.join(" — "); }
+  function labelFault(f){
+    const a=byId(f.ID)||{};
+    const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))].filter(Boolean);
+    return bits.join(" — ");
+  }
   function fillFIN(selId, list){
     const sel=document.getElementById(selId); sel.innerHTML="";
     const o=document.createElement('option'); o.value=""; o.textContent="Select FIN..."; sel.appendChild(o);
@@ -556,7 +592,8 @@
   function populateFormA(){
     const fin=document.getElementById('a-fin').value;
     const sgn=document.getElementById('a-signed').value||"";
-    const f=getFault(fin)||{}; const a=byId(f.ID||"")||{};
+    const f=getFault(fin)||{};
+    const a=byId(f.ID||"")||{};
     const t=now();
     document.getElementById('a-uniq').textContent = f.FMS||"";
     const wildIds = new Set(["30","31","32"]);
@@ -576,7 +613,8 @@
   function populateFormB(){
     const fin=document.getElementById('b-fin').value;
     const sgn=document.getElementById('b-signed').value||"";
-    const f=getFault(fin)||{}; const a=byId(f.ID||"")||{};
+    const f=getFault(fin)||{};
+    const a=byId(f.ID||"")||{};
     const t=now();
 
     document.getElementById('b-uniq').textContent = f.FMS||"";
@@ -607,11 +645,84 @@
     document.getElementById('b-loc').textContent   = a.Location||"";
     document.getElementById('b-line').textContent  = a.Line||"";
     document.getElementById('b-miles').textContent = a.Mileage||"";
-
     document.getElementById('b-signed-val').textContent = sgn;
     document.getElementById('b-signed-date').textContent = t.date;
   }
 
+  function refreshForms(){
+    fillFIN('a-fin', openFaults());
+    fillFIN('b-fin', closedFaults());
+    populateFormA();
+    populateFormB();
+  }
+
+  /* ===== PDF + Email (attachment) ===== */
+
+  async function domToA4PDF(node, filename){
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    const blob = await html2pdf().from(node).set(opt).outputPdf('blob');
+    return blob;
+  }
+
+  function blobToBase64(blob){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const base64 = String(reader.result).split(',')[1] || '';
+        resolve(base64);
+      };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function emailPDFAttachment(blob, filename, subject){
+    // Single baked-in recipient
+    const recipients = ["bradley.garner@networkrail.co.uk"];
+    const base64 = await blobToBase64(blob);
+    const { error } = await sb.functions.invoke('send-pdf-email', {
+      body: {
+        subject,
+        to: recipients,
+        attachments: [{
+          filename,
+          contentType: 'application/pdf',
+          data_base64: base64
+        }]
+      }
+    });
+    if(error) throw new Error(error.message || 'Email function error');
+  }
+
+  async function generateAndMailA(fin){
+    document.getElementById('a-fin').value = fin;
+    populateFormA();
+    const node = document.getElementById('formA');
+    const filename = `F3.21A-${fin}.pdf`;
+    const blob = await domToA4PDF(node, filename);
+    if(document.getElementById('auto-mail-toggle').checked){
+      await emailPDFAttachment(blob, filename, `F3.21A for FIN ${fin}`);
+    }
+  }
+
+  async function generateAndMailB(fin){
+    document.getElementById('b-fin').value = fin;
+    populateFormB();
+    const node = document.getElementById('formB');
+    const filename = `F3.21B-${fin}.pdf`;
+    const blob = await domToA4PDF(node, filename);
+    if(document.getElementById('auto-mail-toggle').checked){
+      await emailPDFAttachment(blob, filename, `F3.21B for FIN ${fin}`);
+    }
+  }
+
+  /* ===== CSV + backup ===== */
   function csvDownload(filename, headers, rows){
     function esc(s){ s=(s==null?'':String(s)).replaceAll('"','""'); return '"' + s + '"'; }
     const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
@@ -643,13 +754,6 @@
     a.click();
   }
 
-  function refreshForms(){
-    fillFIN('a-fin', openFaults());
-    fillFIN('b-fin', closedFaults());
-    populateFormA();
-    populateFormB();
-  }
-
   function refreshAll(){
     recomputeAssets();
     renderOverview();
@@ -672,10 +776,9 @@
 <!-- === Supabase FAULTS snapshots (append-only) === -->
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
   const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+  window.sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
   if (!Array.isArray(window.FAULTS)) window.FAULTS = [];
   const DEFAULT_FAULTS = JSON.parse(JSON.stringify(window.FAULTS || []));
@@ -698,10 +801,8 @@
       applyFaults(DEFAULT_FAULTS);
       const { error: insErr } = await sb.from("fault_snapshots").insert({ faults: DEFAULT_FAULTS });
       if (insErr) console.warn("Seed insert failed:", insErr.message);
-      console.log("Seeded FAULTS snapshot");
     } else {
       applyFaults(data[0].faults);
-      console.log("Loaded latest FAULTS snapshot");
     }
   }
 
@@ -709,17 +810,14 @@
     const faults = Array.isArray(window.FAULTS) ? window.FAULTS : [];
     const { error } = await sb.from("fault_snapshots").insert({ faults });
     if (error) throw error;
-    console.log("Saved new FAULTS snapshot");
   }
 
-  // debounced autosave, used by the main script via window.queueSave()
   let _t;
   window.queueSave = function queueSave(){
     clearTimeout(_t);
     _t = setTimeout(() => { saveSnapshot().catch(e => alert("Save failed: " + e.message)); }, 800);
   };
 
-  // test buttons deliberately *not* added (they’re hidden by CSS anyway)
   document.addEventListener('DOMContentLoaded', () => {
     loadFaults()
       .then(() => {
