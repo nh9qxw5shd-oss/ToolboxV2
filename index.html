@@ -472,28 +472,33 @@
   /* ===== Email trigger helper ===== */
   async function triggerEmail(kind, fin){
     const toggle = document.getElementById('auto-email-toggle');
-    if(!toggle || !toggle.checked) return;        // feature off
+    if (!toggle || !toggle.checked) return;   // feature off
+
     const fault = getFault(fin);
-    if(!fault) return;
+    if (!fault) return;
     const asset = byId(fault.ID || "") || null;
 
     const payload = {
-      kind,                      // "A" or "B"
-      to: AUTO_EMAIL_TO,
+      kind,                 // "A" or "B"
+      to: AUTO_EMAIL_TO,    // hard-coded recipient
       fin,
       fault,
       asset
     };
 
     try {
-      await fetch(FN_URL, {
+      const res = await fetch(FN_URL, {
         method: "POST",
-        mode: "no-cors",         // avoid CORS preflight / OPTIONS
+        headers: {
+          "Content-Type": "application/json"
+          // If you ever re-enable auth and need to pass the anon key:
+          // "apikey": "<your anon key here>"
+        },
         body: JSON.stringify(payload)
       });
-      // no response handling possible in no-cors; it's fire-and-forget
+      console.log("send-pdf-email status", res.status);
     } catch (e) {
-      console.log("send-pdf-email error:", e);
+      console.error("send-pdf-email fetch error:", e);
     }
   }
 
