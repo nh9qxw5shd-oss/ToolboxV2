@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HABD-WILD EM — v8 (Supabase snapshots, forms + auto email)</title>
+<title>HABD-WILD EM — v9 (Supabase snapshots, forms + server email)</title>
 
 <style>
   :root{--bg:#f3f4f6;--panel:#ffffff;--ink:#111827;--muted:#6b7280;--border:#e5e7eb;--accent:#111827;--accentInk:#f9fafb;--tableHead:#f9fafb;--inputBg:#ffffff}
@@ -66,12 +66,13 @@
 
 <body>
 <header>
-  <h3 style="margin:0">HABD-WILD EM — v8</h3>
+  <h3 style="margin:0">HABD-WILD EM — v9</h3>
   <div class="tabs">
     <button class="tab-btn active" data-tab="tab-overview">Overview</button>
     <button class="tab-btn" data-tab="tab-faultlog">Fault Log</button>
     <button class="tab-btn" data-tab="tab-f321a">F3.21A</button>
     <button class="tab-btn" data-tab="tab-f321b">F3.21B</button>
+    <button class="tab-btn" data-tab="tab-notify">Notifications</button>
   </div>
 </header>
 
@@ -110,11 +111,9 @@
         <span id="flt-count" class="badge"></span>
         <button class="btn ghost no-print" onclick="csvFaults()">Export visible CSV</button>
 
-        <!-- Auto-email toggle -->
-        <label class="no-print" style="margin-left:auto; display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--muted)">
-          <input type="checkbox" id="auto-email-toggle" checked>
-          Auto email F3.21 forms
-        </label>
+        <span class="no-print" style="margin-left:auto; font-size:12px; color:var(--muted)">
+          F3.21A/B are emailed automatically — see Notifications
+        </span>
       </div>
       <div class="control">
         <select id="close-id" class="w160"></select>
@@ -128,7 +127,8 @@
       </div>
       <div style="margin-top:6px; color:var(--muted); font-size:12px">
         Editable: FMS, Failure Date, Date in order, Notes. Open = Date in order blank.
-        Use “Close now” per-row or bulk close by ID.
+        Use “Close now” per-row or bulk close by ID. Booking a fault sends the F3.21A; closing it with a
+        complete date and time (dd/mm/yyyy hh:mm) sends the F3.21B, a couple of minutes after the change.
       </div>
     </div>
   </section>
@@ -302,6 +302,25 @@
       </div>
     </div>
   </section>
+
+  <!-- ==================== NOTIFICATIONS ==================== -->
+  <section id="tab-notify" class="tab">
+    <div class="panel">
+      <div class="control">
+        <span id="ntf-count" class="badge"></span>
+        <button class="btn ghost no-print" onclick="window.loadNotifications && window.loadNotifications()">Refresh</button>
+        <span style="font-size:12px; color:var(--muted)">
+          F3.21A/B forms and the daily overview are sent by the server from habd.derbycontrol.co.uk.
+        </span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Queued</th><th>Type</th><th>FIN</th><th>Status</th><th>Sent</th><th>To</th><th>Subject / detail</th></tr></thead>
+          <tbody id="ntf-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -318,7 +337,7 @@
     {"ID":"9","FIN":"","Controlling SB":"EMCC","Location":"East Langton","Line":"Up Main","Route":"LN3201","ELR":"SPC3","Mileage":"86.26","Operational Status":"OPERATIONAL"},
     {"ID":"10","FIN":"","Controlling SB":"EMCC","Location":"East Langton","Line":"Down Main","Route":"LN3201","ELR":"SPC3","Mileage":"86.26","Operational Status":"OPERATIONAL"},
     {"ID":"11","FIN":"","Controlling SB":"EMCC","Location":"Barrow-On-Soar","Line":"Down Fast","Route":"LN3201","ELR":"SPC5","Mileage":"108.72","Operational Status":"OPERATIONAL"},
-    {"ID":"12","FIN":"","Controlling SB":"EMCC","Location":"Barrow-On-Soar","Line":"Down Slow","Route":"LN3201","ELR":"SCP5","Mileage":"108.72","Operational Status":"OPERATIONAL"},
+    {"ID":"12","FIN":"","Controlling SB":"EMCC","Location":"Barrow-On-Soar","Line":"Down Slow","Route":"LN3201","ELR":"SPC5","Mileage":"108.72","Operational Status":"OPERATIONAL"},
     {"ID":"13","FIN":"","Controlling SB":"EMCC","Location":"Loughborough","Line":"Up Fast","Route":"LN3201","ELR":"SPC5","Mileage":"111.05","Operational Status":"OPERATIONAL"},
     {"ID":"14","FIN":"","Controlling SB":"EMCC","Location":"Loughborough","Line":"Up Slow","Route":"LN3201","ELR":"SPC5","Mileage":"111.05","Operational Status":"OPERATIONAL"},
     {"ID":"15","FIN":"","Controlling SB":"EMCC","Location":"Langley Mill","Line":"Up&Dn Erewash Slow","Route":"LN3207","ELR":"TCC","Mileage":"129.27","Operational Status":"OPERATIONAL"},
@@ -335,7 +354,7 @@
     {"ID":"26","FIN":"","Controlling SB":"LSCC","Location":"Scopwick","Line":"Up Spalding","Route":"LN170","ELR":"SPD2","Mileage":"70.43","Operational Status":"OPERATIONAL"},
     {"ID":"27","FIN":"","Controlling SB":"LSCC","Location":"Blankney","Line":"Down Spalding","Route":"LN170","ELR":"SPD2","Mileage":"73.21","Operational Status":"OPERATIONAL"},
     {"ID":"28","FIN":"","Controlling SB":"LSCC","Location":"Sykes Lane","Line":"Up Gainsborough","Route":"LN170","ELR":"SPD3","Mileage":"89.17","Operational Status":"OPERATIONAL"},
-    {"ID":"29","FIN":"","Controlling SB":"Allignton","Location":"Allington East Jn","Line":"Up Nottingham","Route":"LN195","ELR":"NOG1","Mileage":"108.64","Operational Status":"OPERATIONAL"},
+    {"ID":"29","FIN":"","Controlling SB":"Allington","Location":"Allington East Jn","Line":"Up Nottingham","Route":"LN195","ELR":"NOG1","Mileage":"108.64","Operational Status":"OPERATIONAL"},
     {"ID":"30","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
     {"ID":"31","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Dn Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
     {"ID":"32","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up&Dn Slow (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"}
@@ -351,9 +370,6 @@
     {"FIN":"5","ID":"7","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Slow","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","FMS":"178119","Failure Date":"2022-04-18 00:00:00","Date in order":"","Notes":"Reason unknown"}
   ];
   const FAULTS = window.FAULTS;
-
-  const AUTO_EMAIL_TO = "bradley.garner@networkrail.co.uk";
-  const FN_URL = "https://ungtmfwxqawkdiflmora.supabase.co/functions/v1/send-pdf-email";
 
   /* ===== Helpers ===== */
   function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
@@ -480,39 +496,6 @@
     });
   }
 
-  /* ===== Email trigger helper ===== */
-  async function triggerEmail(kind, fin){
-    const toggle = document.getElementById('auto-email-toggle');
-    if (!toggle || !toggle.checked) return;   // feature off
-
-    const fault = getFault(fin);
-    if (!fault) return;
-    const asset = byId(fault.ID || "") || null;
-
-    const payload = {
-      kind,                 // "A" or "B"
-      to: AUTO_EMAIL_TO,    // hard-coded recipient
-      fin,
-      fault,
-      asset
-    };
-
-    try {
-      const res = await fetch(FN_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-          // If you ever re-enable auth and need to pass the anon key:
-          // "apikey": "<your anon key here>"
-        },
-        body: JSON.stringify(payload)
-      });
-      console.log("send-pdf-email status", res.status);
-    } catch (e) {
-      console.error("send-pdf-email fetch error:", e);
-    }
-  }
-
   /* ===== Faults table ===== */
   const FHEAD = ["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State","Action"];
 
@@ -573,8 +556,6 @@
         f["Date in order"]=t.date+" "+t.time;
         recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
         if(window.queueSave) window.queueSave();
-        // auto email F3.21B for this FIN if enabled
-        if(f.FIN) triggerEmail("B", f.FIN);
       });
       tdA.appendChild(b); tr.appendChild(tdA);
 
@@ -619,9 +600,6 @@
     document.getElementById('book-fms').value="";
     document.getElementById('book-fail').value="";
     document.getElementById('book-notes').value="";
-
-    // auto email F3.21A for this new fault if enabled
-    triggerEmail("A", fin);
   }
 
   function closeAllForId(){
@@ -629,12 +607,10 @@
     if(!id){ alert("Pick an ID to bulk close."); return; }
     let changed = false;
     const t=now();
-    const finsClosed = [];
     FAULTS.forEach(f => {
       if(f.ID===id && stateOf(f)==="Open"){
         f["Date in order"] = t.date+" "+t.time;
         changed = true;
-        if(f.FIN) finsClosed.push(f.FIN);
       }
     });
     if(changed){
@@ -643,8 +619,6 @@
       renderOverview();
       renderFaults();
       if(window.queueSave) window.queueSave();
-      // auto email F3.21B for each closed FIN if enabled
-      finsClosed.forEach(fin => triggerEmail("B", fin));
     }
   }
 
@@ -876,6 +850,39 @@ function csvFaults(){
 
   window.loadFaults = loadFaults;
   window.saveSnapshot = saveSnapshot;
+
+  /* ===== Notifications log (read-only; sending is done server-side by habd-notify) ===== */
+  const NTF_KIND = { A: "F3.21A outage", B: "F3.21B reinstated", overview: "Daily overview" };
+  const NTF_BADGE = { sent: "g", failed: "r", cancelled: "", suppressed: "", skipped: "", queued: "", sending: "" };
+  const fmt = (ts) => ts ? new Date(ts).toLocaleString("en-GB", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", timeZone:"Europe/London" }) : "";
+
+  async function loadNotifications(){
+    const body = document.getElementById("ntf-body");
+    const { data, error } = await sb.rpc("habd_recent_notifications", { max_rows: 100 });
+    if (error) { body.innerHTML = ""; document.getElementById("ntf-count").textContent = "Load failed: " + error.message; return; }
+    body.innerHTML = "";
+    (data || []).forEach(n => {
+      const tr = document.createElement("tr");
+      const status = n.status + (n.is_test || n.mode === "test" ? " (test)" : "");
+      const cells = [fmt(n.created_at), NTF_KIND[n.kind] || n.kind, n.fin || "", null, fmt(n.sent_at),
+                     n.recipients ? n.recipients + " recipient" + (n.recipients === 1 ? "" : "s") : "", n.error || n.subject || ""];
+      cells.forEach((c, i) => {
+        const td = document.createElement("td");
+        if (i === 3) {
+          const b = document.createElement("span");
+          b.className = "badge " + (NTF_BADGE[n.status] || "");
+          b.textContent = status;
+          td.appendChild(b);
+        } else td.textContent = c;
+        if (i === 6) td.style.whiteSpace = "normal";
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    document.getElementById("ntf-count").textContent = (data || []).length + " notifications";
+  }
+  window.loadNotifications = loadNotifications;
+  document.querySelector('[data-tab="tab-notify"]').addEventListener("click", loadNotifications);
 </script>
 </body>
 </html>
