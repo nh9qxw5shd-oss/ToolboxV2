@@ -3,147 +3,306 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HABD-WILD EM — v9 (Supabase snapshots, forms + server email)</title>
-
+<title>HABD / WILD — East Midlands</title>
 <style>
-  :root{--bg:#f3f4f6;--panel:#ffffff;--ink:#111827;--muted:#6b7280;--border:#e5e7eb;--accent:#111827;--accentInk:#f9fafb;--tableHead:#f9fafb;--inputBg:#ffffff}
-  * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial }
-  header {background:var(--accent); color:var(--accentInk); border-bottom:1px solid var(--border); padding:14px 18px; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap}
-  .tabs { display:flex; gap:8px; flex-wrap:wrap }
-  .tab-btn {border:1px solid var(--border); background:#fff; color:var(--ink); padding:8px 10px; border-radius:8px; cursor:pointer}
-  .tab-btn.active {background:var(--accent); color:var(--accentInk); border-color:var(--accent)}
-  main { padding:14px 16px 36px }
-  .tab { display:none } .tab.active { display:block }
-  .panel {background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px; margin:10px 0}
-  .control { display:flex; gap:8px; align-items:center; margin:8px 0; flex-wrap:wrap }
-  input,select,textarea {background:var(--inputBg); color:var(--ink); border:1px solid var(--border); border-radius:8px; padding:8px}
-  table { border-collapse:collapse; width:100% }
-  th,td { padding:6px; border-bottom:1px solid var(--border); white-space:nowrap }
-  thead th {position:sticky; top:0; background:var(--tableHead); z-index:1}
-  .table-scroll { overflow:auto; max-height:65vh; border:1px solid var(--border); border-radius:10px }
-  .badge {display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); background:#fff}
-  .g {background:#dcfce7; border-color:#86efac; color:#065f46}
-  .r {background:#fee2e2; border-color:#fecaca; color:#991b1b}
-  .btn {background:var(--accent); color:var(--accentInk); border:none; padding:8px 10px; border-radius:8px; cursor:pointer}
-  .btn.ghost {background:transparent; color:var(--ink); border:1px solid var(--border)}
-  .btn.small { padding:4px 8px; font-size:12px }
-  .fit { width:100% }
-  .w160 { width:160px }
-  .no-print { display:inline-flex }
+  :root{
+    --bg:#f3f5f8; --surface:#ffffff; --ink:#0f172a; --muted:#5b6679; --faint:#8b95a7; --border:#e2e7ee;
+    --brand:#12304f; --brandInk:#ffffff; --focus:#2563eb;
+    --ok:#15803d; --okBg:#e7f7ed; --okLine:#9fdcb4;
+    --bad:#c0262d; --badBg:#fdecec; --badLine:#f4b4b6;
+    --warn:#a15c07; --warnBg:#fff5e1; --warnLine:#f5d18a;
+    --radius:12px; --shadow:0 1px 2px rgba(15,23,42,.06),0 2px 8px rgba(15,23,42,.05);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:14px;line-height:1.45}
+  button,input,select,textarea{font:inherit;color:inherit}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
-  /* Make FMS + Notes cells more usable */
-  .fms-input { min-width:80px; max-width:100px; }
-  .notes-input { min-width:220px; }
+  /* ---------- Top bar & tabs ---------- */
+  .topbar{background:var(--brand);color:var(--brandInk);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .brandmark{display:flex;align-items:center;gap:12px}
+  .logo{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-weight:800;letter-spacing:.02em}
+  .title{font-size:18px;font-weight:700;line-height:1.1}
+  .subtitle{font-size:12px;opacity:.8}
+  .sync{display:flex;align-items:center;gap:8px;font-size:12px;background:rgba(255,255,255,.1);padding:6px 10px;border-radius:999px}
+  .sync .dot{width:8px;height:8px;border-radius:50%;background:#4ade80}
+  .sync.saving .dot{background:#fbbf24}
+  .sync.error .dot{background:#f87171}
+  .sync button{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:2px 10px;cursor:pointer;font-size:12px}
+  .tabs{display:flex;gap:4px;padding:0 16px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto}
+  .tab-btn{border:none;background:none;padding:12px 14px;cursor:pointer;color:var(--muted);font-weight:600;border-bottom:3px solid transparent;white-space:nowrap}
+  .tab-btn:hover{color:var(--ink)}
+  .tab-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
+  .tab-btn .count{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--badBg);color:var(--bad);font-size:12px;line-height:20px;text-align:center}
+  .tab-btn .count.zero{background:var(--okBg);color:var(--ok)}
+  main{max-width:1320px;margin:0 auto;padding:18px 16px 48px}
+  .tab{display:none}.tab.active{display:block}
 
-  /* Hide test bar entirely */
-  #sb-test-bar { display:none !important }
+  /* ---------- Generic ---------- */
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .muted{color:var(--muted)} .small{font-size:12px}
+  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+  .search{flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer;font-weight:600;color:var(--muted)}
+  .chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn{border:1px solid transparent;border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-ghost{background:var(--surface);border-color:var(--border);color:var(--ink)}
+  .btn-ghost:hover{border-color:#c7cfdb}
+  .btn-ok{background:var(--ok);color:#fff}
+  .btn-bad{background:var(--bad);color:#fff}
+  .btn-outline-bad{background:var(--surface);border-color:var(--badLine);color:var(--bad)}
+  .btn-outline-bad:hover{background:var(--badBg)}
+  .btn-sm{padding:5px 10px;font-size:12px;border-radius:8px}
+  .btn-block{width:100%}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+  .pill.on{background:var(--okBg);color:var(--ok);border:1px solid var(--okLine)}
+  .pill.off{background:var(--badBg);color:var(--bad);border:1px solid var(--badLine)}
+  .pill.warn{background:var(--warnBg);color:var(--warn);border:1px solid var(--warnLine)}
+  .pill.neutral{background:#eef1f5;color:var(--muted);border:1px solid var(--border)}
 
-  /* === FORM PAGES (A4 single page) === */
+  /* ---------- Summary ---------- */
+  .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px;text-align:left;cursor:pointer}
+  .stat:hover{border-color:#c7cfdb}
+  .stat .label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+  .stat .value{font-size:30px;font-weight:800;margin-top:2px;line-height:1.1}
+  .stat .hint{font-size:12px;color:var(--muted)}
+  .stat.ok .value{color:var(--ok)} .stat.bad .value{color:var(--bad)}
+  .stat.bad{border-color:var(--badLine);background:linear-gradient(0deg,var(--surface),var(--surface)),var(--badBg)}
+  @media (max-width:760px){.summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+  /* ---------- How-to ---------- */
+  .howto{margin-top:12px;background:#eef4fb;border:1px solid #cfe0f3;border-radius:var(--radius);padding:12px 16px}
+  .howto summary{cursor:pointer;font-weight:700;color:var(--brand)}
+  .howto ol{margin:8px 0 2px;padding-left:20px}
+  .howto li{margin:4px 0}
+
+  /* ---------- Board ---------- */
+  .group{margin-top:18px}
+  .group h2{font-size:14px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .group h2 .muted{font-weight:500}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-items:start}
+  .card{background:var(--surface);border:1px solid var(--border);border-left:6px solid var(--okLine);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+  .card.off{border-color:var(--badLine);border-left-color:var(--bad);background:#fffafa}
+  .card-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .type{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:1px 6px}
+  .card h3{margin:0;font-size:16px;line-height:1.2}
+  .card .line{font-weight:600}
+  .card .meta{font-size:12px;color:var(--muted)}
+  .facts{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin:0}
+  .facts div{min-width:0}
+  .facts dt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .facts dd{margin:0;font-weight:700;white-space:nowrap}
+  .notes{font-size:12px;color:var(--ink);background:#fff;border:1px dashed var(--badLine);border-radius:8px;padding:6px 8px;margin:0;overflow-wrap:anywhere}
+  .mail{font-size:12px;display:flex;gap:6px;flex-wrap:wrap}
+  .card .spacer{flex:1}
+  .empty{padding:32px;text-align:center;color:var(--muted)}
+
+  /* ---------- Tables ---------- */
+  .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%}
+  th,td{padding:9px 10px;border-bottom:1px solid #edf0f4;text-align:left;vertical-align:top}
+  thead th{position:sticky;top:0;background:#f7f9fb;z-index:1;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);white-space:nowrap}
+  tbody tr:hover{background:#fafbfd}
+  tr.open-row{background:#fffafa}
+  td.wrap{white-space:normal;min-width:180px;max-width:300px}
+  .equip b{display:block}
+  .equip .small{white-space:nowrap}
+  .mail.stack{flex-direction:column;align-items:flex-start;min-width:140px}
+  .mail.stack .pill{white-space:normal}
+  .when b{display:block;font-weight:600}
+  .when span{font-size:12px;color:var(--muted)}
+  .actions{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+  .actions .btn{white-space:nowrap}
+  td.nowrap{white-space:nowrap}
+
+  /* ---------- Dialogs ---------- */
+  dialog{border:none;border-radius:16px;padding:0;width:min(560px,calc(100vw - 24px));box-shadow:0 20px 60px rgba(15,23,42,.35)}
+  dialog::backdrop{background:rgba(15,23,42,.55)}
+  .dlg-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .dlg-head.off{background:var(--badBg);border-bottom-color:var(--badLine)}
+  .dlg-head.on{background:var(--okBg);border-bottom-color:var(--okLine)}
+  .dlg-head h2{margin:0;font-size:18px}
+  .dlg-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+  .dlg-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+  .asset-box{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:#f8fafc}
+  .asset-box .big{font-size:16px;font-weight:700}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field label{font-weight:700}
+  .field .help{font-size:12px;color:var(--muted)}
+  .field input,.field textarea,.field select{padding:9px 11px;border:1px solid #cbd3de;border-radius:10px;background:#fff}
+  .field input[aria-invalid="true"]{border-color:var(--bad);background:#fff7f7}
+  .field .err{font-size:12px;color:var(--bad);font-weight:600;display:none}
+  .field .err.show{display:block}
+  .consequence{border-radius:10px;padding:10px 12px;font-size:13px}
+  .consequence.off{background:var(--badBg);border:1px solid var(--badLine)}
+  .consequence.on{background:var(--okBg);border:1px solid var(--okLine)}
+  .consequence.info{background:#eef4fb;border:1px solid #cfe0f3}
+  .consequence b{display:block;margin-bottom:2px}
+
+  /* ---------- Toast ---------- */
+  #toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:1000;width:min(640px,calc(100vw - 24px))}
+  .toast{background:#0f172a;color:#fff;border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(15,23,42,.35)}
+  .toast.error{background:#7f1d1d}
+  .toast .msg{flex:1}
+  .toast button{background:#fff;color:#0f172a;border:none;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer}
+  .toast .x{background:transparent;color:#cbd5e1;padding:4px 6px}
+  .banner{margin-bottom:12px;padding:10px 14px;border-radius:10px;background:var(--badBg);border:1px solid var(--badLine);color:var(--bad);font-weight:600;display:none}
+  .banner.show{display:block}
+
+  /* ---------- Forms tab (official layout, unchanged) ---------- */
+  .form-controls{display:flex;gap:8px;align-items:end;flex-wrap:wrap;margin-bottom:14px}
+  .form-controls .field{min-width:180px}
   @page { size:A4; margin:8mm }
-  .a4 { width:190mm; margin:0 auto; background:#fff; color:#000; }
+  .a4 { width:190mm; max-width:100%; margin:0 auto; background:#fff; color:#000; }
   .form-sheet { border:0.75pt solid #005172; padding:6mm; font-family:Arial,Helvetica,sans-serif; }
-
+  .form-sheet table{border-collapse:collapse}
+  .form-sheet td{padding:0;border-bottom:none;vertical-align:middle}
   .np-head-left { background:#ccffcc; }
   .np-head-right { background:#009900; color:#fff; text-align:left }
   .np-slab { background:#3a9fbe; color:#fff; font-weight:700 }
-  .np-border { border:0.75pt solid #005172 }
+  .np-border { border:0.75pt solid #005172 !important }
   .np-box { min-height:7mm; border:0.75pt solid #005172; padding:3mm 4mm; }
   .xcell { text-align:center; font-weight:bold; }
   .tight { padding:2mm 3mm }
   .np-footer { border-top:0.75pt solid #808080; padding-top:1pt; font-size:10pt; }
+  .sheet-wrap{display:none}.sheet-wrap.show{display:block}
+  .form-sheet, .form-sheet *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
   @media print {
-    header, .tabs, .panel > .control, .no-print, #sb-test-bar { display:none !important }
-    body { background:#fff; color:#000 }
-    main { padding:0 }
-    .panel { border:none; padding:0; margin:0 }
-    .a4 { border:none; width:auto }
-    a { text-decoration:none; color:#000 }
+    .topbar,.tabs,.no-print,#toasts,.banner{display:none !important}
+    body{background:#fff}
+    main{padding:0;max-width:none}
+    .tab{display:none !important}
+    #tab-forms{display:block !important}
+    .panel{border:none;box-shadow:none;padding:0}
+    .a4{width:100%;max-width:190mm}
+    .form-sheet{box-sizing:border-box}
   }
 </style>
 </head>
-
 <body>
-<header>
-  <h3 style="margin:0">HABD-WILD EM — v9</h3>
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="tab-overview">Overview</button>
-    <button class="tab-btn" data-tab="tab-faultlog">Fault Log</button>
-    <button class="tab-btn" data-tab="tab-f321a">F3.21A</button>
-    <button class="tab-btn" data-tab="tab-f321b">F3.21B</button>
-    <button class="tab-btn" data-tab="tab-notify">Notifications</button>
+
+<header class="topbar">
+  <div class="brandmark">
+    <div class="logo" aria-hidden="true">HW</div>
+    <div>
+      <div class="title">HABD / WILD equipment status</div>
+      <div class="subtitle">East Midlands · Derby Control</div>
+    </div>
+  </div>
+  <div class="sync" id="sync" role="status" aria-live="polite">
+    <span class="dot"></span><span id="sync-text">Connecting…</span>
+    <button type="button" id="btn-refresh">Refresh</button>
   </div>
 </header>
 
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="tab-board" role="tab">Status board <span class="count" id="tab-count-off">–</span></button>
+  <button class="tab-btn" data-tab="tab-history" role="tab">Fault history</button>
+  <button class="tab-btn" data-tab="tab-forms" role="tab">Print F3.21 forms</button>
+  <button class="tab-btn" data-tab="tab-log" role="tab">Email log</button>
+</nav>
+
 <main>
-  <!-- OVERVIEW -->
-  <section id="tab-overview" class="tab active">
-    <div class="panel">
-      <div class="control">
-        <input id="ovr-q" placeholder="Search assets" class="fit">
-        <span id="ovr-count" class="badge"></span>
-        <button class="btn ghost no-print" onclick="csvAssets()">Export visible CSV</button>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead><tr id="ovr-head"></tr></thead>
-          <tbody id="ovr-body"></tbody>
-        </table>
-      </div>
+  <div class="banner" id="banner"></div>
+
+  <!-- ==================== STATUS BOARD ==================== -->
+  <section id="tab-board" class="tab active">
+    <div class="summary">
+      <button class="stat ok" data-filter="on" type="button">
+        <div class="label">In use</div><div class="value" id="s-on">–</div><div class="hint" id="s-on-hint">&nbsp;</div>
+      </button>
+      <button class="stat bad" data-filter="off" type="button">
+        <div class="label">Out of use</div><div class="value" id="s-off">–</div><div class="hint">Click to show only these</div>
+      </button>
+      <button class="stat" data-filter="habd" type="button">
+        <div class="label">HABD in use</div><div class="value" id="s-habd">–</div><div class="hint">Hot axle box detectors</div>
+      </button>
+      <button class="stat" data-filter="wild" type="button">
+        <div class="label">WILD in use</div><div class="value" id="s-wild">–</div><div class="hint">Wheel impact load detectors</div>
+      </button>
     </div>
+
+    <details class="howto" id="howto">
+      <summary>How to record equipment going out of use or coming back into use</summary>
+      <ol>
+        <li><b>Equipment has failed or been disconnected:</b> find it below and press <span class="pill off">Report out of use</span>. Enter the FMS reference and the time it failed. An <b>F3.21A</b> is emailed to the distribution list automatically.</li>
+        <li><b>Equipment is back in use:</b> find the red card and press <span class="pill on">Return to service</span>. Check the time it was reinstated. An <b>F3.21B</b> is emailed automatically.</li>
+        <li>Made a mistake? Press <b>Undo</b> on the message that appears. You have 90 seconds, and nothing is emailed until 2 minutes after you confirm.</li>
+        <li>Need to correct an FMS number or note later? Use <b>Fault history → Edit</b>. Emails that have already gone are not sent again.</li>
+      </ol>
+    </details>
+
+    <div class="toolbar">
+      <input id="board-q" class="search" type="search" placeholder="Search location, line, ELR, FMS…" aria-label="Search equipment">
+      <div class="chips" role="group" aria-label="Filter">
+        <button class="chip" data-filter="all" aria-pressed="true" type="button">All</button>
+        <button class="chip" data-filter="off" aria-pressed="false" type="button">Out of use</button>
+        <button class="chip" data-filter="on" aria-pressed="false" type="button">In use</button>
+        <button class="chip" data-filter="habd" aria-pressed="false" type="button">HABD</button>
+        <button class="chip" data-filter="wild" aria-pressed="false" type="button">WILD</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-export-assets" type="button">Export CSV</button>
+    </div>
+
+    <div id="board"></div>
   </section>
 
-  <!-- FAULT LOG -->
-  <section id="tab-faultlog" class="tab">
-    <div class="panel">
-      <div class="control">
-        <select id="book-id" class="w160"></select>
-        <input id="book-fms" class="w160" placeholder="FMS ref">
-        <!-- datetime-local -->
-        <input id="book-fail" class="w160" type="datetime-local" placeholder="Failure date/time">
-        <input id="book-notes" class="fit" placeholder="Notes (free text)">
-        <button class="btn" onclick="bookFault()">Book fault</button>
-        <button class="btn ghost" onclick="exportBackup()">Export backup (JSON)</button>
+  <!-- ==================== FAULT HISTORY ==================== -->
+  <section id="tab-history" class="tab">
+    <div class="toolbar">
+      <input id="hist-q" class="search" type="search" placeholder="Search FIN, FMS, location, notes…" aria-label="Search faults">
+      <div class="chips" role="group" aria-label="Filter faults">
+        <button class="chip" data-hfilter="all" aria-pressed="true" type="button">All</button>
+        <button class="chip" data-hfilter="open" aria-pressed="false" type="button">Out of use now</button>
+        <button class="chip" data-hfilter="closed" aria-pressed="false" type="button">Reinstated</button>
       </div>
-      <div class="control">
-        <input id="flt-q" placeholder="Search faults" class="fit">
-        <span id="flt-count" class="badge"></span>
-        <button class="btn ghost no-print" onclick="csvFaults()">Export visible CSV</button>
-
-        <span class="no-print" style="margin-left:auto; font-size:12px; color:var(--muted)">
-          F3.21A/B are emailed automatically — see Notifications
-        </span>
-      </div>
-      <div class="control">
-        <select id="close-id" class="w160"></select>
-        <button class="btn no-print" onclick="closeAllForId()">Close open faults for ID (stamp now)</button>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead><tr id="flt-head"></tr></thead>
-          <tbody id="flt-body"></tbody>
-        </table>
-      </div>
-      <div style="margin-top:6px; color:var(--muted); font-size:12px">
-        Editable: FMS, Failure Date, Date in order, Notes. Open = Date in order blank.
-        Use “Close now” per-row or bulk close by ID. Booking a fault sends the F3.21A; closing it with a
-        complete date and time (dd/mm/yyyy hh:mm) sends the F3.21B, a couple of minutes after the change.
-      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-export-faults" type="button">Export CSV</button>
+      <button class="btn btn-ghost btn-sm" id="btn-backup" type="button">Backup (JSON)</button>
     </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Status</th><th>FIN</th><th>Equipment</th><th>FMS</th>
+          <th>Out from</th><th>Reinstated</th><th>Days</th><th>Emails</th><th>Notes</th><th></th>
+        </tr></thead>
+        <tbody id="hist-body"></tbody>
+      </table>
+    </div>
+    <p class="small muted" id="hist-count"></p>
   </section>
 
-  <!-- ==================== F3.21A (Outage) ==================== -->
-  <section id="tab-f321a" class="tab">
+  <!-- ==================== PRINT FORMS ==================== -->
+  <section id="tab-forms" class="tab">
     <div class="panel">
-      <div class="control no-print">
-        <select id="a-fin" class="w160"></select>
-        <input id="a-signed" class="w160" placeholder="Signed by">
-        <button class="btn" onclick="window.print()">Print to PDF</button>
+      <div class="form-controls no-print">
+        <div class="field">
+          <label for="form-kind">Form</label>
+          <select id="form-kind">
+            <option value="A">F3.21A – Outage</option>
+            <option value="B">F3.21B – Reinstatement</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1">
+          <label for="form-fin">Fault</label>
+          <select id="form-fin"></select>
+        </div>
+        <div class="field">
+          <label for="form-signed">Signed</label>
+          <input id="form-signed" value="Derby Control">
+        </div>
+        <button class="btn btn-primary" type="button" onclick="window.print()">Print / save as PDF</button>
       </div>
+      <p class="small muted no-print" style="margin-top:-4px">These forms are emailed automatically. Use this only if you need a paper or PDF copy.</p>
 
-      <div class="a4">
-        <div class="form-sheet" id="formA">
+      <div class="sheet-wrap show" id="wrap-A">
+        <div class="a4">
+<div class="form-sheet" id="formA">
           <!-- Header -->
           <table class="np-border" style="width:100%; border-collapse:collapse">
             <tr>
@@ -218,21 +377,11 @@
             <strong>Page:</strong> 1 of 1
           </div>
         </div>
+        </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ==================== F3.21B (Reinstatement) ==================== -->
-  <section id="tab-f321b" class="tab">
-    <div class="panel">
-      <div class="control no-print">
-        <select id="b-fin" class="w160"></select>
-        <input id="b-signed" class="w160" placeholder="Signed by">
-        <button class="btn" onclick="window.print()">Print to PDF</button>
-      </div>
-
-      <div class="a4">
-        <div class="form-sheet" id="formB">
+      <div class="sheet-wrap" id="wrap-B">
+        <div class="a4">
+<div class="form-sheet" id="formB">
           <!-- Header -->
           <table class="np-border" style="width:100%; border-collapse:collapse">
             <tr>
@@ -299,33 +448,132 @@
             <strong>Page:</strong> 1 of 1
           </div>
         </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ==================== NOTIFICATIONS ==================== -->
-  <section id="tab-notify" class="tab">
-    <div class="panel">
-      <div class="control">
-        <span id="ntf-count" class="badge"></span>
-        <button class="btn ghost no-print" onclick="window.loadNotifications && window.loadNotifications()">Refresh</button>
-        <span style="font-size:12px; color:var(--muted)">
-          F3.21A/B forms and the daily overview are sent by the server from habd.derbycontrol.co.uk.
-        </span>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead><tr><th>Queued</th><th>Type</th><th>FIN</th><th>Status</th><th>Sent</th><th>To</th><th>Subject / detail</th></tr></thead>
-          <tbody id="ntf-body"></tbody>
-        </table>
-      </div>
+  <!-- ==================== EMAIL LOG ==================== -->
+  <section id="tab-log" class="tab">
+    <div class="toolbar">
+      <span class="muted">Every F3.21A/B and daily overview email, newest first. Sent from habd.derbycontrol.co.uk.</span>
+      <span style="flex:1"></span>
+      <button class="btn btn-ghost btn-sm" id="btn-log-refresh" type="button">Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Queued</th><th>Email</th><th>FIN</th><th>Status</th><th>Sent</th><th>Recipients</th><th>Subject / detail</th></tr></thead>
+        <tbody id="log-body"></tbody>
+      </table>
     </div>
   </section>
 </main>
 
-<script>
-  /* =================== STATIC DATA (unchanged by Supabase) =================== */
-  window.ASSETS = [
+<!-- ==================== DIALOG: REPORT OUT OF USE ==================== -->
+<dialog id="dlg-out" aria-labelledby="dlg-out-title">
+  <form method="dialog" id="form-out" novalidate>
+    <div class="dlg-head off"><span class="pill off">✕</span><h2 id="dlg-out-title">Report out of use</h2></div>
+    <div class="dlg-body">
+      <div class="asset-box" id="out-asset"></div>
+      <div class="field">
+        <label for="out-fms">FMS fault reference <span aria-hidden="true">*</span></label>
+        <input id="out-fms" autocomplete="off" inputmode="numeric" required>
+        <span class="err" id="out-fms-err">Enter the FMS fault number.</span>
+      </div>
+      <div class="field">
+        <label for="out-time">Went out of use at <span aria-hidden="true">*</span></label>
+        <input id="out-time" type="datetime-local" required>
+        <span class="help">Defaults to now. Change it if the failure happened earlier.</span>
+        <span class="err" id="out-time-err"></span>
+      </div>
+      <div class="field">
+        <label for="out-notes">Notes</label>
+        <textarea id="out-notes" rows="2" placeholder="e.g. Reported by SSM, loss of comms with field end"></textarea>
+      </div>
+      <div class="consequence off">
+        <b>When you confirm</b>
+        This equipment will show as <b style="display:inline">OUT OF USE</b> and an <b style="display:inline">F3.21A</b> will be emailed to the HABD/WILD distribution list in about 2 minutes. You can undo for 90 seconds.
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" value="cancel" formnovalidate type="submit">Cancel</button>
+      <button class="btn btn-bad" id="out-confirm" value="confirm" type="submit">Confirm out of use</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ==================== DIALOG: RETURN TO SERVICE ==================== -->
+<dialog id="dlg-in" aria-labelledby="dlg-in-title">
+  <form method="dialog" id="form-in" novalidate>
+    <div class="dlg-head on"><span class="pill on">✓</span><h2 id="dlg-in-title">Return to service</h2></div>
+    <div class="dlg-body">
+      <div class="asset-box" id="in-asset"></div>
+      <div class="field">
+        <label for="in-time">Back in use at <span aria-hidden="true">*</span></label>
+        <input id="in-time" type="datetime-local" required>
+        <span class="help">Defaults to now. Change it if the equipment was reinstated earlier.</span>
+        <span class="err" id="in-time-err"></span>
+      </div>
+      <div class="consequence on">
+        <b>When you confirm</b>
+        This equipment will show as <b style="display:inline">IN USE</b> and an <b style="display:inline">F3.21B</b> will be emailed to the HABD/WILD distribution list in about 2 minutes. You can undo for 90 seconds.
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" value="cancel" formnovalidate type="submit">Cancel</button>
+      <button class="btn btn-ok" id="in-confirm" value="confirm" type="submit">Confirm back in use</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ==================== DIALOG: EDIT FAULT ==================== -->
+<dialog id="dlg-edit" aria-labelledby="dlg-edit-title">
+  <form method="dialog" id="form-edit" novalidate>
+    <div class="dlg-head"><h2 id="dlg-edit-title">Correct fault details</h2></div>
+    <div class="dlg-body">
+      <div class="asset-box" id="edit-asset"></div>
+      <div class="field">
+        <label for="edit-fms">FMS fault reference</label>
+        <input id="edit-fms" autocomplete="off">
+        <span class="err" id="edit-fms-err">The FMS reference can't be blank.</span>
+      </div>
+      <div class="field">
+        <label for="edit-from">Went out of use at</label>
+        <input id="edit-from" type="datetime-local">
+        <span class="err" id="edit-from-err"></span>
+      </div>
+      <div class="field" id="edit-to-field">
+        <label for="edit-to">Back in use at</label>
+        <input id="edit-to" type="datetime-local">
+        <span class="err" id="edit-to-err"></span>
+      </div>
+      <div class="field">
+        <label for="edit-notes">Notes</label>
+        <textarea id="edit-notes" rows="2"></textarea>
+      </div>
+      <div class="consequence info">
+        <b>Corrections only</b>
+        This updates the record. Emails that have already been sent are <b style="display:inline">not</b> sent again. To bring equipment back into use, use <b style="display:inline">Return to service</b> instead.
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn btn-ghost" value="cancel" formnovalidate type="submit">Cancel</button>
+      <button class="btn btn-primary" value="confirm" type="submit">Save correction</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  /* =================== ASSETS (static) =================== */
+  const ASSETS = [
     {"ID":"1","FIN":"","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Fast","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"OPERATIONAL"},
     {"ID":"2","FIN":"1","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18.0","Operational Status":"DEFECTIVE"},
     {"ID":"3","FIN":"","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Slow","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","Operational Status":"OPERATIONAL"},
@@ -359,530 +607,580 @@
     {"ID":"31","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Dn Fast (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"},
     {"ID":"32","FIN":"","Controlling SB":"EMCC","Location":"Thurmaston","Line":"Up&Dn Slow (WILD)","Route":"LN3201","ELR":"SPC5","Mileage":"101.78","Operational Status":"OPERATIONAL"}
   ];
-  const ASSETS = window.ASSETS;
 
-  /* FAULTS are the ONLY thing persisted (seed) */
-  window.FAULTS = [
-    {"FIN":"1","ID":"2","Controlling SB":"West Hampstead","Location":"Napsbury","Line":"Up Slow","Route":"LN3201","ELR":"SPC1","Mileage":"18","FMS":"180003","Failure Date":"2022-06-17 00:00:00","Date in order":"","Notes":"Reason unknown"},
-    {"FIN":"2","ID":"4","Controlling SB":"West Hampstead","Location":"Chiltern Green","Line":"Down Fast","Route":"LN3201","ELR":"SPC1","Mileage":"27.69","FMS":"179537","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"3","ID":"5","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Slow","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","FMS":"179531","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"4","ID":"6","Controlling SB":"West Hampstead","Location":"Oakley","Line":"Up Fast","Route":"LN3201","ELR":"SPC2","Mileage":"53.6","FMS":"179530","Failure Date":"2022-06-04 00:00:00","Date in order":"","Notes":"Awaiting new PC components "},
-    {"FIN":"5","ID":"7","Controlling SB":"EMCC","Location":"Finedon","Line":"Down Slow","Route":"LN3201","ELR":"SPC3","Mileage":"67.49","FMS":"178119","Failure Date":"2022-04-18 00:00:00","Date in order":"","Notes":"Reason unknown"}
-  ];
-  const FAULTS = window.FAULTS;
+  // Persisted fault fields. The server (habd_on_snapshot / habd-notify) reads exactly these:
+  //   "Failure Date"  = "YYYY-MM-DDTHH:MM"   (local time)
+  //   "Date in order" = "dd/mm/yyyy HH:MM"   (local time; blank = still out of use)
+  let FAULTS = [];
+  let snapId = null;
+  let busy = false;
+  const MAIL = new Map(); // "A:0065" -> latest outbox row
 
-  /* ===== Helpers ===== */
-  function byId(id){ return ASSETS.find(a => a.ID===id) || null; }
-  function getFault(fin){ return FAULTS.find(x => x.FIN===fin) || null; }
-  function makeFIN(){
-    const nums = FAULTS.map(f => parseInt((f.FIN||"").replace(/\D/g,''),10)).filter(n => !isNaN(n));
-    const next = nums.length ? Math.max(...nums)+1 : 1;
-    return String(next).padStart(4,'0');
+  const UNDO_MS = 90_000; // server waits 2 minutes before emailing; undo must finish before then
+  const WILD_IDS = new Set(["30","31","32"]);
+
+  /* =================== Helpers =================== */
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const pad = (n) => String(n).padStart(2, "0");
+  const isWild = (a) => WILD_IDS.has(String(a?.ID)) || /\bWILD\b/i.test(a?.Line || "");
+  const typeOf = (a) => isWild(a) ? "WILD" : "HABD";
+  const byId = (id) => ASSETS.find(a => a.ID === String(id)) || null;
+  const isOpen = (f) => String(f["Date in order"] || "").trim() === "";
+
+  function parseWall(s){
+    const v = String(s || "").trim();
+    let m = v.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5]);
+    m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})$/);
+    if (m) return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]);
+    return null;
   }
-  function stateOf(f){ return (f["Date in order"]||"").trim()==="" ? "Open" : "Closed"; }
-  function now(){
-    const d=new Date();
-    const dd=String(d.getDate()).padStart(2,'0');
-    const mm=String(d.getMonth()+1).padStart(2,'0');
-    const yyyy=d.getFullYear();
-    const HH=String(d.getHours()).padStart(2,'0');
-    const MM=String(d.getMinutes()).padStart(2,'0');
-    return { date: dd+"/"+mm+"/"+yyyy, time: HH+":"+MM };
+  const fmt = (d) => d ? `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}` : "";
+  const fmtShort = (d) => d ? `${pad(d.getDate())}/${pad(d.getMonth()+1)} ${pad(d.getHours())}:${pad(d.getMinutes())}` : "";
+  const toInput = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const fromInput = (v) => { const d = parseWall(v); return d && !isNaN(d) ? d : null; };
+  const daysBetween = (a, b = new Date()) => {
+    if (!a) return null;
+    const x = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    const y = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+    return Math.max(0, Math.round((y - x) / 86400000));
+  };
+  const location = (a, f) => ({
+    loc: a?.Location || f?.Location || "", line: a?.Line || f?.Line || "",
+    elr: a?.ELR || f?.ELR || "", miles: a?.Mileage || f?.Mileage || "",
+    route: a?.Route || f?.Route || "", box: a?.["Controlling SB"] || f?.["Controlling SB"] || ""
+  });
+  function openFaultsFor(id, list = FAULTS){
+    return list.filter(f => String(f.ID) === String(id) && isOpen(f))
+      .sort((x, y) => (parseWall(y["Failure Date"])?.getTime() || 0) - (parseWall(x["Failure Date"])?.getTime() || 0));
+  }
+  function nextFIN(list){
+    const nums = list.map(f => parseInt(String(f.FIN || "").replace(/\D/g, ""), 10)).filter(n => !isNaN(n));
+    return String(nums.length ? Math.max(...nums) + 1 : 1).padStart(4, "0");
   }
 
-  function toISOLocal(s){
-    if(!s) return "";
-    if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return s;
-    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
-    if(m) return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}`;
-    m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})/);
-    if(m) return `${m[3]}-${m[2]}-${m[1]}T${m[4]}:${m[5]}`;
+  /* =================== Sync status / toasts =================== */
+  function setSync(state, text){
+    const el = $("#sync"); el.classList.remove("saving", "error");
+    if (state) el.classList.add(state);
+    $("#sync-text").textContent = text;
+  }
+  function banner(msg){
+    const b = $("#banner"); b.textContent = msg || ""; b.classList.toggle("show", !!msg);
+  }
+  function toast(msg, { error = false, action = null, ms = 6000 } = {}){
+    const t = document.createElement("div");
+    t.className = "toast" + (error ? " error" : "");
+    const m = document.createElement("div"); m.className = "msg"; m.textContent = msg; t.appendChild(m);
+    let timer;
+    const close = () => { clearTimeout(timer); t.remove(); };
+    if (action){
+      const b = document.createElement("button"); b.type = "button"; b.textContent = action.label;
+      b.addEventListener("click", async () => { close(); await action.run(); });
+      t.appendChild(b);
+    }
+    const x = document.createElement("button"); x.type = "button"; x.className = "x"; x.textContent = "✕"; x.setAttribute("aria-label", "Dismiss");
+    x.addEventListener("click", close); t.appendChild(x);
+    const box = $("#toasts"); box.appendChild(t);
+    while (box.children.length > 3) box.firstElementChild.remove();
+    timer = setTimeout(close, ms);
+    return close;
+  }
+
+  /* =================== Data =================== */
+  async function fetchLatest(){
+    const { data, error } = await sb.from("fault_snapshots").select("id, faults").order("id", { ascending: false }).limit(1);
+    if (error) throw error;
+    const row = data?.[0];
+    return { id: row?.id ?? null, faults: Array.isArray(row?.faults) ? row.faults : [] };
+  }
+
+  async function refresh({ quiet = false } = {}){
+    try {
+      const latest = await fetchLatest();
+      const changed = snapId !== null && latest.id !== snapId;
+      FAULTS = latest.faults; snapId = latest.id;
+      renderAll();
+      setSync(null, "Up to date · " + fmtShort(new Date()).slice(-5));
+      banner("");
+      if (changed && !quiet) toast("Updated with the latest changes.");
+      loadMail();
+    } catch (e) {
+      setSync("error", "Can't reach server");
+      banner("Can't load the latest data. Changes can't be saved until the connection is back — press Refresh.");
+    }
+  }
+
+  // Every change: re-read the latest saved state, apply the change to it, save a new snapshot.
+  // This stops an out-of-date screen overwriting someone else's update.
+  async function commit(mutate, okMsg){
+    if (busy) return false;
+    busy = true; setSync("saving", "Saving…"); setBusyUI(true);
+    try {
+      const latest = await fetchLatest();
+      const faults = JSON.parse(JSON.stringify(latest.faults));
+      const result = mutate(faults);
+      if (result && result.abort){
+        FAULTS = latest.faults; snapId = latest.id; renderAll();
+        toast(result.abort, { error: true, ms: 9000 });
+        setSync(null, "Up to date");
+        return false;
+      }
+      const { data, error } = await sb.from("fault_snapshots").insert({ faults }).select("id").single();
+      if (error) throw error;
+      FAULTS = faults; snapId = data.id;
+      renderAll();
+      setSync(null, "Saved · " + fmtShort(new Date()).slice(-5));
+      banner("");
+      if (okMsg) okMsg(result);
+      setTimeout(loadMail, 2500);
+      return true;
+    } catch (e) {
+      setSync("error", "Save failed");
+      toast("Not saved: " + (e?.message || e) + ". Nothing has been emailed. Please try again.", { error: true, ms: 12000 });
+      return false;
+    } finally {
+      busy = false; setBusyUI(false);
+    }
+  }
+  function setBusyUI(on){ $$('[data-action]').forEach(b => b.disabled = on); }
+
+  async function loadMail(){
+    const { data, error } = await sb.rpc("habd_recent_notifications", { max_rows: 200 });
+    if (error) return;
+    MAIL.clear();
+    for (const n of data || []) {
+      if (!n.fin || n.is_test) continue;
+      const k = `${n.kind}:${n.fin}`;
+      if (!MAIL.has(k)) MAIL.set(k, n);
+    }
+    renderBoard(); renderHistory(); renderLog(data || []);
+  }
+
+  function mailChip(kind, fin){
+    const n = MAIL.get(`${kind}:${fin}`);
+    const label = kind === "A" ? "F3.21A" : "F3.21B";
+    if (!n) return "";
+    const when = n.sent_at ? fmtShort(new Date(n.sent_at)) : "";
+    const map = {
+      sent: ["on", `${label} sent ${when}`],
+      queued: ["warn", `${label} sending shortly`],
+      sending: ["warn", `${label} sending`],
+      failed: ["off", `${label} failed – retrying`],
+      cancelled: ["neutral", `${label} cancelled (undone)`],
+      suppressed: ["neutral", `${label} not sent (email off)`],
+      skipped: ["neutral", `${label} skipped`],
+    };
+    const [cls, text] = map[n.status] || ["neutral", `${label} ${n.status}`];
+    return `<span class="pill ${cls}" title="${esc(n.error || n.subject || "")}">✉ ${esc(text)}</span>`;
+  }
+
+  /* =================== Status board =================== */
+  let boardFilter = "all";
+  function statusRows(){
+    return ASSETS.map(a => ({ a, open: openFaultsFor(a.ID) }));
+  }
+  function renderSummary(rows){
+    const off = rows.filter(r => r.open.length).length;
+    const total = rows.length;
+    const habd = rows.filter(r => !isWild(r.a)), wild = rows.filter(r => isWild(r.a));
+    const on = (l) => l.filter(r => !r.open.length).length;
+    $("#s-on").textContent = `${total - off} / ${total}`;
+    $("#s-on-hint").textContent = off ? `${Math.round(((total - off) / total) * 100)}% available` : "All equipment in use";
+    $("#s-off").textContent = off;
+    const offTile = $('.stat[data-filter="off"]'); offTile.classList.toggle("bad", off > 0); offTile.classList.toggle("ok", off === 0);
+    $("#s-habd").textContent = `${on(habd)} / ${habd.length}`;
+    $("#s-wild").textContent = `${on(wild)} / ${wild.length}`;
+    const c = $("#tab-count-off"); c.textContent = off; c.classList.toggle("zero", off === 0);
+    c.title = off ? `${off} out of use` : "All in use";
+    document.title = (off ? `(${off} out) ` : "") + "HABD / WILD — East Midlands";
+  }
+  function matches(r, q){
+    if (!q) return true;
+    const f = r.open[0] || {};
+    return [r.a.ID, r.a.Location, r.a.Line, r.a.ELR, r.a.Mileage, r.a.Route, r.a["Controlling SB"], typeOf(r.a), f.FMS, f.FIN, f.Notes]
+      .some(v => String(v || "").toLowerCase().includes(q));
+  }
+  function passFilter(r){
+    switch (boardFilter){
+      case "off": return r.open.length > 0;
+      case "on": return r.open.length === 0;
+      case "habd": return !isWild(r.a);
+      case "wild": return isWild(r.a);
+      default: return true;
+    }
+  }
+  function card(r){
+    const a = r.a, off = r.open.length > 0, f = r.open[0];
+    const L = location(a, f);
+    const meta = [ [L.elr, L.miles].filter(Boolean).join(" "), L.route, "ID " + a.ID ].filter(Boolean).join(" · ");
+    let body = "";
+    if (off){
+      const since = parseWall(f["Failure Date"]);
+      const days = daysBetween(since);
+      body = `
+        <dl class="facts">
+          <div><dt>Out since</dt><dd>${esc(since ? fmt(since) : f["Failure Date"] || "—")}</dd></div>
+          <div><dt>Days out</dt><dd>${days ?? "—"}</dd></div>
+          <div><dt>FMS</dt><dd>${esc(f.FMS || "—")}</dd></div>
+          <div><dt>FIN</dt><dd>${esc(f.FIN || "—")}</dd></div>
+        </dl>
+        ${f.Notes ? `<p class="notes">${esc(f.Notes)}</p>` : ""}
+        ${r.open.length > 1 ? `<p class="small" style="margin:0;color:var(--bad)">${r.open.length} open faults on this asset — returning to service closes all of them.</p>` : ""}
+        <div class="mail">${mailChip("A", f.FIN)}</div>
+        <span class="spacer"></span>
+        <button class="btn btn-ok btn-block" data-action="in" data-id="${esc(a.ID)}" type="button">✓ Return to service</button>`;
+    } else {
+      body = `<span class="spacer"></span>
+        <button class="btn btn-outline-bad btn-block" data-action="out" data-id="${esc(a.ID)}" type="button">Report out of use</button>`;
+    }
+    return `<article class="card ${off ? "off" : "on"}" aria-label="${esc(L.loc + " " + L.line + (off ? " out of use" : " in use"))}">
+      <div class="card-top">
+        ${off ? `<span class="pill off">✕ OUT OF USE</span>` : `<span class="pill on">✓ IN USE</span>`}
+        <span class="type">${typeOf(a)}</span>
+      </div>
+      <div><h3>${esc(L.loc)}</h3><div class="line">${esc(L.line)}</div><div class="meta">${esc(meta)}</div></div>
+      ${body}
+    </article>`;
+  }
+  function renderBoard(){
+    const rows = statusRows();
+    renderSummary(rows);
+    const q = ($("#board-q").value || "").trim().toLowerCase();
+    const shown = rows.filter(r => passFilter(r) && matches(r, q));
+    const groups = new Map();
+    for (const r of shown){
+      const k = r.a["Controlling SB"] || "Other";
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push(r);
+    }
+    const html = [...groups.entries()].map(([box, list]) => {
+      const all = rows.filter(r => (r.a["Controlling SB"] || "Other") === box);
+      const offN = all.filter(r => r.open.length).length;
+      return `<section class="group">
+        <h2>${esc(box)} <span class="muted">· ${all.length - offN} of ${all.length} in use</span>
+          ${offN ? `<span class="pill off">${offN} out</span>` : `<span class="pill on">all in use</span>`}</h2>
+        <div class="grid">${[...list.filter(r => r.open.length), ...list.filter(r => !r.open.length)].map(card).join("")}</div>
+      </section>`;
+    }).join("");
+    $("#board").innerHTML = html || `<div class="empty panel">Nothing matches this search or filter.</div>`;
+  }
+
+  /* =================== Fault history =================== */
+  let histFilter = "all";
+  function renderHistory(){
+    const q = ($("#hist-q").value || "").trim().toLowerCase();
+    const list = FAULTS.filter(f => histFilter === "all" || (histFilter === "open" ? isOpen(f) : !isOpen(f)))
+      .filter(f => {
+        if (!q) return true;
+        const a = byId(f.ID) || {};
+        return [f.FIN, f.FMS, f.Notes, f.ID, a.Location || f.Location, a.Line || f.Line, a.ELR || f.ELR, f["Failure Date"], f["Date in order"]]
+          .some(v => String(v || "").toLowerCase().includes(q));
+      })
+      .sort((x, y) => (isOpen(y) - isOpen(x)) || ((parseWall(y["Failure Date"])?.getTime() || 0) - (parseWall(x["Failure Date"])?.getTime() || 0)));
+    $("#hist-body").innerHTML = list.map(f => {
+      const a = byId(f.ID), L = location(a, f), open = isOpen(f);
+      const from = parseWall(f["Failure Date"]), to = parseWall(f["Date in order"]);
+      const days = from ? daysBetween(from, to || new Date()) : null;
+      return `<tr class="${open ? "open-row" : ""}">
+        <td>${open ? `<span class="pill off">✕ Out of use</span>` : `<span class="pill on">✓ Reinstated</span>`}</td>
+        <td class="nowrap"><b>${esc(f.FIN)}</b></td>
+        <td class="equip"><b>${esc(L.loc)} — ${esc(L.line)}</b><span class="small muted">${typeOf(a || f)} · ${esc([L.elr, L.miles].filter(Boolean).join(" "))}</span></td>
+        <td class="nowrap">${esc(f.FMS || "")}</td>
+        <td class="when nowrap">${from ? `<b>${esc(fmt(from).slice(0, 10))}</b><span>${esc(fmt(from).slice(-5))}</span>` : esc(f["Failure Date"] || "")}</td>
+        <td class="when nowrap">${to ? `<b>${esc(fmt(to).slice(0, 10))}</b><span>${esc(fmt(to).slice(-5))}</span>` : (open ? "—" : esc(f["Date in order"]))}</td>
+        <td>${days ?? ""}</td>
+        <td><div class="mail stack">${mailChip("A", f.FIN)} ${mailChip("B", f.FIN)}</div></td>
+        <td class="wrap">${esc(f.Notes || "")}</td>
+        <td><div class="actions">
+          ${open ? `<button class="btn btn-ok btn-sm" data-action="in" data-id="${esc(f.ID)}" type="button">Return to service</button>` : ""}
+          <button class="btn btn-ghost btn-sm" data-action="edit" data-fin="${esc(f.FIN)}" type="button">Edit</button>
+        </div></td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="10" class="empty">No faults match.</td></tr>`;
+    $("#hist-count").textContent = `${list.length} of ${FAULTS.length} fault records`;
+  }
+
+  /* =================== Email log =================== */
+  const KIND = { A: "F3.21A outage", B: "F3.21B reinstated", overview: "Daily overview" };
+  const STATUS_CLS = { sent: "on", failed: "off", queued: "warn", sending: "warn" };
+  function renderLog(rows){
+    $("#log-body").innerHTML = rows.map(n => `<tr>
+      <td class="nowrap">${esc(fmt(new Date(n.created_at)))}</td>
+      <td class="nowrap">${esc(KIND[n.kind] || n.kind)}</td>
+      <td>${esc(n.fin || "")}</td>
+      <td><span class="pill ${STATUS_CLS[n.status] || "neutral"}">${esc(n.status)}${n.is_test || n.mode === "test" ? " (test)" : ""}</span></td>
+      <td class="nowrap">${n.sent_at ? esc(fmt(new Date(n.sent_at))) : ""}</td>
+      <td>${n.recipients || ""}</td>
+      <td class="wrap">${esc(n.error || n.subject || "")}</td>
+    </tr>`).join("") || `<tr><td colspan="7" class="empty">No emails yet.</td></tr>`;
+  }
+
+  /* =================== Dialog helpers =================== */
+  function assetBox(a, f){
+    const L = location(a, f);
+    return `<div class="big">${esc(L.loc)} — ${esc(L.line)}</div>
+      <div class="small muted">${typeOf(a || f)} · ${esc([L.elr, L.miles].filter(Boolean).join(" "))} · ${esc(L.route)} · ${esc(L.box)} · ID ${esc(a?.ID || f?.ID)}</div>`;
+  }
+  function fieldError(input, errEl, msg){
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+    errEl.textContent = msg || errEl.textContent;
+    errEl.classList.toggle("show", !!msg);
+    return !msg;
+  }
+  const FUTURE_SLACK = 5 * 60_000;
+  function checkTime(d, { after = null, afterLabel = "" } = {}){
+    if (!d) return "Enter a date and time.";
+    if (d.getTime() > Date.now() + FUTURE_SLACK) return "This is in the future.";
+    if (after && d.getTime() < after.getTime()) return `This is before ${afterLabel} (${fmt(after)}).`;
     return "";
   }
-  function fromISOToParts(iso){
-    if(!iso) return {date:"", time:""};
-    const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
-    if(!m) return {date:"", time:""};
-    return { date:`${m[3]}/${m[2]}/${m[1]}`, time:`${m[4]}:${m[5]}` };
-  }
-  function parseLegacyParts(s){
-    if(!s) return {date:"", time:""};
-    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})[ T](\d{2}):(\d{2})/);
-    if(!m) return {date:"", time:""};
-    return { date:`${m[1]}/${m[2]}/${m[3]}`, time:`${m[4]}:${m[5]}` };
-  }
-
-  function recomputeAssets(){
-    ASSETS.forEach(a => {
-      const related = FAULTS.filter(f => f.ID===a.ID);
-      const open = related.filter(f => stateOf(f)==="Open");
-      if(open.length){
-        open.sort((x,y) => toISOLocal(y["Failure Date"]||"").localeCompare(toISOLocal(x["Failure Date"]||"")));
-        a["Operational Status"] = "Defective";
-        a["FIN"] = open[0].FIN || a["FIN"] || "";
-      }else{
-        a["Operational Status"] = "Operational";
-        a["FIN"] = "";
-      }
-    });
-    fillCloseId();
-  }
-
-  /* ===== Tabs ===== */
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById(btn.dataset.tab).classList.add('active');
-      refreshAll();
-    });
-  });
-
-  /* ===== Overview ===== */
-  const OHEAD = ["ID","FIN","FMS","Controlling SB","Location","Line","Route","ELR","Mileage","Operational Status"];
-  function renderOverview(){
-    const q = (document.getElementById('ovr-q').value||"").toLowerCase();
-    const list = ASSETS.filter(a => !q || Object.values(a).some(v => String(v).toLowerCase().includes(q)));
-    const head = document.getElementById('ovr-head'); head.innerHTML="";
-    OHEAD.forEach(h => { const th=document.createElement('th'); th.textContent=h; head.appendChild(th); });
-    const body = document.getElementById('ovr-body'); body.innerHTML="";
-    list.forEach(a => {
-      const tr=document.createElement('tr');
-      OHEAD.forEach(k => {
-  const td = document.createElement('td');
-
-  if (k === "Operational Status") {
-    td.innerHTML = (a[k]||"").toLowerCase().startsWith("defect")
-      ? '<span class="badge r">Defective</span>'
-      : '<span class="badge g">Operational</span>';
-
-  } else if (k === "FMS") {
-    // Show FMS for the OPEN fault that matches this asset's FIN
-    const fin = (a.FIN || "").trim();
-    const f = fin ? (FAULTS.find(x => (x.FIN || "").trim() === fin && stateOf(x) === "Open") || null) : null;
-    td.textContent = f ? (f.FMS || "") : "";
-
-  } else {
-    td.textContent = a[k] || "";
-  }
-
-  tr.appendChild(td);
-});
-      body.appendChild(tr);
-    });
-    document.getElementById('ovr-count').textContent = list.length + " assets";
-  }
-  document.getElementById('ovr-q').addEventListener('input', renderOverview);
-
-  function labelAsset(a){
-    return [a.ID, a.Location, a.ELR && ("ELR "+a.ELR), a.Mileage && ("@ "+a.Mileage)]
-      .filter(Boolean).join(" — ");
-  }
-  function fillBookAsset(){
-    const sel = document.getElementById('book-id'); sel.innerHTML="";
-    const o=document.createElement('option'); o.value=""; o.textContent="Select asset ID..."; sel.appendChild(o);
-    ASSETS.forEach(a => { const opt=document.createElement('option'); opt.value=a.ID; opt.textContent=labelAsset(a); sel.appendChild(opt); });
-  }
-  function fillCloseId(){
-    const sel = document.getElementById('close-id'); sel.innerHTML="";
-    const o=document.createElement('option'); o.value=""; o.textContent="Choose ID to bulk close"; sel.appendChild(o);
-    const ids = Array.from(new Set(FAULTS.filter(f => stateOf(f)==="Open").map(f => f.ID))).filter(Boolean);
-    ids.forEach(id => {
-      const a = byId(id) || {};
-      const opt=document.createElement('option');
-      opt.value=id; opt.textContent = id + " — " + (a.Location||"") + " (" + (FAULTS.filter(f => f.ID===id && stateOf(f)==="Open").length) + " open)";
-      sel.appendChild(opt);
+  $$("dialog input, dialog textarea").forEach(i => i.addEventListener("input", () => {
+    i.setAttribute("aria-invalid", "false");
+    const err = i.parentElement.querySelector(".err"); if (err) err.classList.remove("show");
+  }));
+  function modal(dlg, onConfirm){
+    return new Promise(resolve => {
+      const form = $("form", dlg);
+      const submit = async (e) => {
+        const val = e.submitter?.value;
+        if (val !== "confirm"){ return; }
+        e.preventDefault();
+        if (!onConfirm()) return;
+        cleanup(); dlg.close(); resolve(true);
+      };
+      const closed = () => { cleanup(); resolve(false); };
+      const cleanup = () => { form.removeEventListener("submit", submit); dlg.removeEventListener("close", closed); };
+      form.addEventListener("submit", submit);
+      dlg.addEventListener("close", closed, { once: true });
+      dlg.showModal();
     });
   }
 
-  /* ===== Faults table ===== */
-  const FHEAD = ["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State","Action"];
-
-  function renderFaults(){
-    const q=(document.getElementById('flt-q').value||"").toLowerCase();
-    const head=document.getElementById('flt-head'); head.innerHTML="";
-    FHEAD.forEach(h=>{ const th=document.createElement('th'); th.textContent=h; head.appendChild(th); });
-    const body=document.getElementById('flt-body'); body.innerHTML="";
-
-    FAULTS.filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q))).forEach((f) => {
-      const tr=document.createElement('tr');
-      function tdText(txt){ const td=document.createElement('td'); td.textContent=txt; return td; }
-      function tdInput(val, field, type, extraClass){
-        const td=document.createElement('td');
-        const inp=document.createElement('input');
-        inp.className = "fit" + (extraClass ? " " + extraClass : "");
-        if(type==="dt"){
-          inp.type="datetime-local";
-          inp.value = toISOLocal(val||"");
-        } else {
-          inp.value = val||"";
-        }
-        inp.addEventListener('input', () => {
-          f[field] = (type==="dt") ? inp.value : inp.value;
-          recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
-          if(window.queueSave) window.queueSave();
-        });
-        td.appendChild(inp); return td;
-      }
-
-      const a = byId(f.ID)||{};
-      tr.appendChild(tdText(f.FIN||""));
-      tr.appendChild(tdText(f.ID||""));
-      tr.appendChild(tdText(a["Controlling SB"]||f["Controlling SB"]||""));
-      tr.appendChild(tdText(a["Location"]||f["Location"]||""));
-      tr.appendChild(tdText(a["Line"]||f["Line"]||""));
-      tr.appendChild(tdText(a["Route"]||f["Route"]||""));
-      tr.appendChild(tdText(a["ELR"]||f["ELR"]||""));
-      tr.appendChild(tdText(a["Mileage"]||f["Mileage"]||""));
-      tr.appendChild(tdInput(f["FMS"], "FMS", null, "fms-input"));
-      tr.appendChild(tdInput(f["Failure Date"], "Failure Date", "dt"));
-      tr.appendChild(tdInput(f["Date in order"], "Date in order"));
-      const tdN=document.createElement('td');
-      const ta=document.createElement('input');
-      ta.className="fit notes-input";
-      ta.value=f["Notes"]||"";
-      ta.addEventListener('input', ()=>{ f["Notes"]=ta.value; refreshForms(); if(window.queueSave) window.queueSave(); });
-      tdN.appendChild(ta); tr.appendChild(tdN);
-
-      const tdS=document.createElement('td');
-      tdS.innerHTML = stateOf(f)==="Open" ? '<span class="badge r">Open</span>' : '<span class="badge g">Closed</span>';
-      tr.appendChild(tdS);
-
-      const tdA=document.createElement('td');
-      const b=document.createElement('button'); b.className="btn small no-print"; b.textContent="Close now";
-      b.addEventListener('click', () => {
-        const t=now();
-        f["Date in order"]=t.date+" "+t.time;
-        recomputeAssets(); refreshForms(); renderOverview(); renderFaults();
-        if(window.queueSave) window.queueSave();
+  /* =================== Actions =================== */
+  async function reportOut(id){
+    const a = byId(id); if (!a) return;
+    if (openFaultsFor(id).length){ toast("This equipment is already out of use.", { error: true }); return; }
+    const dlg = $("#dlg-out");
+    $("#out-asset").innerHTML = assetBox(a);
+    const fms = $("#out-fms"), time = $("#out-time"), notes = $("#out-notes");
+    fms.value = ""; notes.value = ""; time.value = toInput(new Date()); time.max = toInput(new Date(Date.now() + FUTURE_SLACK));
+    [fms, time].forEach(i => i.setAttribute("aria-invalid", "false")); $$(".err", dlg).forEach(e => e.classList.remove("show"));
+    setTimeout(() => fms.focus(), 30);
+    let payload = null;
+    const ok = await modal(dlg, () => {
+      const d = fromInput(time.value);
+      const v1 = fieldError(fms, $("#out-fms-err"), fms.value.trim() ? "" : "Enter the FMS fault number.");
+      const v2 = fieldError(time, $("#out-time-err"), checkTime(d));
+      if (!(v1 && v2)) return false;
+      payload = { fms: fms.value.trim(), iso: toInput(d), notes: notes.value.trim() };
+      return true;
+    });
+    if (!ok) return;
+    let fin = null;
+    const saved = await commit(list => {
+      if (openFaultsFor(id, list).length) return { abort: `${a.Location} ${a.Line} was already reported out of use by someone else. Nothing was saved.` };
+      fin = nextFIN(list);
+      list.unshift({
+        FIN: fin, ID: a.ID, "Controlling SB": a["Controlling SB"] || "", Location: a.Location || "", Line: a.Line || "",
+        Route: a.Route || "", ELR: a.ELR || "", Mileage: a.Mileage || "", FMS: payload.fms,
+        "Failure Date": payload.iso, "Date in order": "", Notes: payload.notes
       });
-      tdA.appendChild(b); tr.appendChild(tdA);
-
-      body.appendChild(tr);
     });
-    document.getElementById('flt-count').textContent = FAULTS.length + " rows";
-  }
-
-  function bookFault(){
-    const id=(document.getElementById('book-id').value||"").trim();
-    const fms=(document.getElementById('book-fms').value||"").trim();
-    const failISO=(document.getElementById('book-fail').value||"").trim(); // ISO from datetime-local
-    const notes=(document.getElementById('book-notes').value||"").trim();
-    if(!id){ alert("Select an asset ID first."); return; }
-    if(!fms){ alert("Enter FMS ref."); return; }
-    if(!failISO){ alert("Pick Failure date/time."); return; }
-
-    const fin = makeFIN();
-    const a = byId(id) || {};
-    const newFault = {
-      "FIN": fin,
-      "ID": id,
-      "Controlling SB": a["Controlling SB"]||"",
-      "Location": a["Location"]||"",
-      "Line": a["Line"]||"",
-      "Route": a["Route"]||"",
-      "ELR": a["ELR"]||"",
-      "Mileage": a["Mileage"]||"",
-      "FMS": fms,
-      "Failure Date": failISO,   // store ISO
-      "Date in order": "",
-      "Notes": notes
-    };
-    FAULTS.unshift(newFault);
-    recomputeAssets();
-    renderOverview();
-    renderFaults();
-    refreshForms();
-    if(window.queueSave) window.queueSave();
-
-    // Clear inputs
-    document.getElementById('book-fms').value="";
-    document.getElementById('book-fail').value="";
-    document.getElementById('book-notes').value="";
-  }
-
-  function closeAllForId(){
-    const id=(document.getElementById('close-id').value||"").trim();
-    if(!id){ alert("Pick an ID to bulk close."); return; }
-    let changed = false;
-    const t=now();
-    FAULTS.forEach(f => {
-      if(f.ID===id && stateOf(f)==="Open"){
-        f["Date in order"] = t.date+" "+t.time;
-        changed = true;
-      }
+    if (!saved) return;
+    const at = fmtShort(new Date(Date.now() + 120_000)).slice(-5);
+    toast(`${a.Location} ${a.Line} is now OUT OF USE (FIN ${fin}). F3.21A will be emailed at about ${at}.`, {
+      ms: UNDO_MS,
+      action: { label: "Undo", run: () => commit(list => {
+        const i = list.findIndex(f => f.FIN === fin && isOpen(f));
+        if (i < 0) return { abort: "Couldn't undo — this fault has already been changed." };
+        list.splice(i, 1);
+      }, () => toast(`Undone. ${a.Location} ${a.Line} is back IN USE and no F3.21A will be sent.`)) }
     });
-    if(changed){
-      recomputeAssets();
-      refreshForms();
-      renderOverview();
-      renderFaults();
-      if(window.queueSave) window.queueSave();
-    }
   }
 
-  /* ===== Forms: selectors & population ===== */
-  function openFaults(){ return FAULTS.filter(f => stateOf(f)==="Open"); }
-  function closedFaults(){ return FAULTS.filter(f => stateOf(f)==="Closed"); }
+  async function returnToService(id){
+    const a = byId(id); const open = openFaultsFor(id);
+    if (!a || !open.length){ toast("This equipment is already in use.", { error: true }); return; }
+    const f = open[0];
+    const since = open.map(x => parseWall(x["Failure Date"])).filter(Boolean).sort((x, y) => y - x)[0] || null;
+    const dlg = $("#dlg-in");
+    $("#in-asset").innerHTML = assetBox(a, f) +
+      `<div class="small" style="margin-top:6px">Out of use since <b>${esc(since ? fmt(since) : "—")}</b> · FMS <b>${esc(open.map(x => x.FMS).filter(Boolean).join(", ") || "—")}</b> · FIN <b>${esc(open.map(x => x.FIN).join(", "))}</b></div>`;
+    const time = $("#in-time");
+    time.value = toInput(new Date()); time.max = toInput(new Date(Date.now() + FUTURE_SLACK)); if (since) time.min = toInput(since);
+    time.setAttribute("aria-invalid", "false"); $("#in-time-err").classList.remove("show");
+    setTimeout(() => time.focus(), 30);
+    let stamp = null;
+    const ok = await modal(dlg, () => {
+      const d = fromInput(time.value);
+      if (!fieldError(time, $("#in-time-err"), checkTime(d, { after: since, afterLabel: "it went out of use" }))) return false;
+      stamp = fmt(d);
+      return true;
+    });
+    if (!ok) return;
+    let closed = [];
+    const saved = await commit(list => {
+      closed = [];
+      list.forEach(x => { if (String(x.ID) === String(id) && isOpen(x)) { x["Date in order"] = stamp; closed.push(x.FIN); } });
+      if (!closed.length) return { abort: `${a.Location} ${a.Line} was already returned to service by someone else. Nothing was saved.` };
+    });
+    if (!saved) return;
+    const at = fmtShort(new Date(Date.now() + 120_000)).slice(-5);
+    toast(`${a.Location} ${a.Line} is now IN USE. F3.21B will be emailed at about ${at}.`, {
+      ms: UNDO_MS,
+      action: { label: "Undo", run: () => commit(list => {
+        let n = 0;
+        list.forEach(x => { if (closed.includes(x.FIN) && x["Date in order"] === stamp) { x["Date in order"] = ""; n++; } });
+        if (!n) return { abort: "Couldn't undo — this fault has already been changed." };
+      }, () => toast(`Undone. ${a.Location} ${a.Line} is OUT OF USE again and no F3.21B will be sent.`)) }
+    });
+  }
+
+  async function editFault(fin){
+    const f0 = FAULTS.find(x => x.FIN === fin); if (!f0) return;
+    const a = byId(f0.ID), open = isOpen(f0);
+    const dlg = $("#dlg-edit");
+    $("#edit-asset").innerHTML = assetBox(a, f0) + `<div class="small" style="margin-top:6px">FIN <b>${esc(fin)}</b> · ${open ? '<span class="pill off">Out of use</span>' : '<span class="pill on">Reinstated</span>'}</div>`;
+    const fms = $("#edit-fms"), from = $("#edit-from"), to = $("#edit-to"), notes = $("#edit-notes");
+    fms.value = f0.FMS || ""; notes.value = f0.Notes || "";
+    const fd = parseWall(f0["Failure Date"]), td = parseWall(f0["Date in order"]);
+    from.value = fd ? toInput(fd) : ""; to.value = td ? toInput(td) : "";
+    $("#edit-to-field").style.display = open ? "none" : "";
+    [fms, from, to].forEach(i => i.setAttribute("aria-invalid", "false")); $$(".err", dlg).forEach(e => e.classList.remove("show"));
+    let upd = null;
+    const ok = await modal(dlg, () => {
+      const d1 = fromInput(from.value), d2 = open ? null : fromInput(to.value);
+      const v1 = fieldError(fms, $("#edit-fms-err"), fms.value.trim() ? "" : "The FMS reference can't be blank.");
+      const v2 = fieldError(from, $("#edit-from-err"), checkTime(d1));
+      const v3 = open ? true : fieldError(to, $("#edit-to-err"), checkTime(d2, { after: d1, afterLabel: "it went out of use" }));
+      if (!(v1 && v2 && v3)) return false;
+      upd = { FMS: fms.value.trim(), "Failure Date": toInput(d1), Notes: notes.value.trim() };
+      if (!open) upd["Date in order"] = fmt(d2);
+      return true;
+    });
+    if (!ok) return;
+    await commit(list => {
+      const f = list.find(x => x.FIN === fin);
+      if (!f) return { abort: "This fault no longer exists." };
+      if (isOpen(f) !== open) return { abort: "Someone has changed this fault's status in the meantime. Nothing was saved — please check and try again." };
+      Object.assign(f, upd);
+    }, () => toast(`FIN ${fin} corrected.`));
+  }
+
+  /* =================== Print forms =================== */
   function labelFault(f){
-    const a=byId(f.ID)||{};
-    const bits=[f.FIN, f.ID, a.Location||f.Location, a.ELR||f.ELR, (a.Mileage||f.Mileage)&&("@ "+(a.Mileage||f.Mileage))]
-      .filter(Boolean);
-    return bits.join(" — ");
+    const a = byId(f.ID) || {};
+    return [f.FIN, a.Location || f.Location, a.Line || f.Line, f.FMS && ("FMS " + f.FMS)].filter(Boolean).join(" — ");
   }
-  function fillFIN(selId, list){
-    const sel=document.getElementById(selId); sel.innerHTML="";
-    const o=document.createElement('option'); o.value=""; o.textContent="Select FIN..."; sel.appendChild(o);
-    list.forEach(f => { const opt=document.createElement('option'); opt.value=f.FIN; opt.textContent=labelFault(f); sel.appendChild(opt); });
+  function fillFormFins(){
+    const kind = $("#form-kind").value;
+    const sel = $("#form-fin"), prev = sel.value;
+    const list = FAULTS.filter(f => kind === "A" ? isOpen(f) : !isOpen(f))
+      .sort((x, y) => (parseWall(y[kind === "A" ? "Failure Date" : "Date in order"])?.getTime() || 0) - (parseWall(x[kind === "A" ? "Failure Date" : "Date in order"])?.getTime() || 0));
+    sel.innerHTML = `<option value="">Select a fault…</option>` + list.map(f => `<option value="${esc(f.FIN)}">${esc(labelFault(f))}</option>`).join("");
+    if (list.some(f => f.FIN === prev)) sel.value = prev;
   }
-
-  function populateFormA(){
-    const fin=document.getElementById('a-fin').value;
-    const sgn=document.getElementById('a-signed').value||"";
-    const f=getFault(fin)||{};
-    const a=byId(f.ID||"")||{};
-    const t=now();
-
-    document.getElementById('a-uniq').textContent = f.FMS||"";
-
-    const wildIds = new Set(["30","31","32"]);
-    document.getElementById('a-x-habd').textContent = wildIds.has(a.ID||"") ? "" : "X";
-    document.getElementById('a-x-wild').textContent = wildIds.has(a.ID||"") ? "X" : "";
-
-    document.getElementById('a-time').textContent = t.time;
-    document.getElementById('a-date').textContent = t.date;
-
-    document.getElementById('a-route').textContent = a.Route||"";
-    document.getElementById('a-elr').textContent   = a.ELR||"";
-    document.getElementById('a-loc').textContent   = a.Location||"";
-    document.getElementById('a-line').textContent  = a.Line||"";
-    document.getElementById('a-miles').textContent = a.Mileage||"";
-
-    document.getElementById('a-signed-val').textContent = sgn;
-    document.getElementById('a-signed-date').textContent = t.date;
-  }
-
-  function populateFormB(){
-    const fin=document.getElementById('b-fin').value;
-    const sgn=document.getElementById('b-signed').value||"";
-    const f=getFault(fin)||{};
-    const a=byId(f.ID||"")||{};
-    const t=now();
-
-    document.getElementById('b-uniq').textContent = f.FMS||"";
-
-    const fdISO = toISOLocal(f["Failure Date"]||"");
-    if(fdISO){
-      const p = fromISOToParts(fdISO);
-      document.getElementById('b-from-time').textContent = p.time;
-      document.getElementById('b-from-date').textContent = p.date;
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || ""; };
+  function populateForms(){
+    const kind = $("#form-kind").value;
+    $("#wrap-A").classList.toggle("show", kind === "A");
+    $("#wrap-B").classList.toggle("show", kind === "B");
+    const f = FAULTS.find(x => x.FIN === $("#form-fin").value) || {};
+    const a = byId(f.ID) || {};
+    const L = location(a, f);
+    const now = new Date(), today = fmt(now).slice(0, 10), time = fmt(now).slice(-5);
+    const signed = $("#form-signed").value;
+    if (kind === "A"){
+      setText("a-uniq", f.FMS);
+      setText("a-x-habd", f.FIN ? (isWild(a) ? "" : "X") : "");
+      setText("a-x-wild", f.FIN ? (isWild(a) ? "X" : "") : "");
+      setText("a-time", f.FIN ? time : ""); setText("a-date", f.FIN ? today : "");
+      setText("a-route", L.route); setText("a-elr", L.elr); setText("a-loc", L.loc); setText("a-line", L.line); setText("a-miles", L.miles);
+      setText("a-signed-val", signed); setText("a-signed-date", today);
     } else {
-      const p = parseLegacyParts(f["Failure Date"]||"");
-      document.getElementById('b-from-time').textContent = p.time;
-      document.getElementById('b-from-date').textContent = p.date;
-    }
-
-    const back = (f["Date in order"]||"").trim();
-    if(back && back.includes(" ")){
-      const [dd, tt] = back.split(" ");
-      document.getElementById('b-to-time').textContent = tt||"";
-      document.getElementById('b-to-date').textContent = dd||"";
-    } else {
-      document.getElementById('b-to-time').textContent = t.time;
-      document.getElementById('b-to-date').textContent = t.date;
-    }
-
-    document.getElementById('b-route').textContent = a.Route||"";
-    document.getElementById('b-elr').textContent   = a.ELR||"";
-    document.getElementById('b-loc').textContent   = a.Location||"";
-    document.getElementById('b-line').textContent  = a.Line||"";
-    document.getElementById('b-miles').textContent = a.Mileage||"";
-
-    document.getElementById('b-signed-val').textContent = sgn;
-    document.getElementById('b-signed-date').textContent = t.date;
-  }
-
-  function refreshForms(){
-    fillFIN('a-fin', openFaults());
-    fillFIN('b-fin', closedFaults());
-    populateFormA();
-    populateFormB();
-  }
-
-  function csvDownload(filename, headers, rows){
-  function esc(s){
-    s = (s==null ? '' : String(s));
-    // safer than replaceAll for older browsers
-    s = s.split('"').join('""');
-    return '"' + s + '"';
-  }
-  const lines = [headers.map(esc).join(",")].concat(rows.map(r => r.map(esc).join(",")));
-  const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function csvAssets(){
-  const q=(document.getElementById('ovr-q').value||"").toLowerCase();
-  const headers=["ID","FIN","FMS","Controlling SB","Location","Line","Route","ELR","Mileage","Operational Status"];
-
-  const rows = ASSETS
-    .filter(a => !q || Object.values(a).some(v => String(v).toLowerCase().includes(q)))
-    .map(a => headers.map(h => {
-      if (h === "FMS") {
-        const fin = (a.FIN || "").trim();
-        const f = fin ? (FAULTS.find(x => (x.FIN || "").trim() === fin && stateOf(x) === "Open") || null) : null;
-        return f ? (f.FMS || "") : "";
-      }
-      return a[h] || "";
-    }));
-
-  csvDownload("overview.csv", headers, rows);
-}
-
-function csvFaults(){
-  const q=(document.getElementById('flt-q').value||"").toLowerCase();
-  const headers=["FIN","ID","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Failure Date","Date in order","Notes","State"];
-
-  const rows = FAULTS
-    .filter(f => !q || Object.values(f).some(v => String(v).toLowerCase().includes(q)))
-    .map(f => headers.map(h => {
-      if(h==="State") return stateOf(f);
-      const a = byId(f.ID)||{};
-      return (h in f ? f[h] : a[h]) || "";
-    }));
-
-  csvDownload("faultlog.csv", headers, rows);
-}
-
-  function exportBackup(){
-    const blob = new Blob([JSON.stringify({faults: FAULTS}, null, 2)], {type:"application/json"});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download = "faults-backup.json";
-    a.click();
-  }
-
-  function refreshAll(){
-    recomputeAssets();
-    renderOverview();
-    fillBookAsset();
-    fillCloseId();
-    renderFaults();
-    refreshForms();
-  }
-
-  // Initial render + listeners
-  refreshAll();
-  document.getElementById('ovr-q').addEventListener('input', renderOverview);
-  document.getElementById('flt-q').addEventListener('input', renderFaults);
-  document.getElementById('a-fin').addEventListener('change', populateFormA);
-  document.getElementById('b-fin').addEventListener('change', populateFormB);
-  document.getElementById('a-signed').addEventListener('input', populateFormA);
-  document.getElementById('b-signed').addEventListener('input', populateFormB);
-</script>
-
-<!-- === Supabase FAULTS snapshots (append-only) === -->
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-  const SUPABASE_URL  = "https://ungtmfwxqawkdiflmora.supabase.co";
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuZ3RtZnd4cWF3a2RpZmxtb3JhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMDY4NjQsImV4cCI6MjA3NzY4Mjg2NH0.Yaq0XfbbkwxJDUoiPCS7bLVBy70Wa-NOOWIxkpRRxdc";
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
-
-  if (!Array.isArray(window.FAULTS)) window.FAULTS = [];
-  const DEFAULT_FAULTS = JSON.parse(JSON.stringify(window.FAULTS || []));
-
-  function applyFaults(faults){
-    window.FAULTS.splice(0, window.FAULTS.length, ...(faults || []));
-    if (window.refreshAll) window.refreshAll();
-  }
-
-  async function loadFaults(){
-    const { data, error } = await sb
-      .from("fault_snapshots")
-      .select("faults")
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (error) throw error;
-
-    if (!data || !data[0] || !Array.isArray(data[0].faults)) {
-      applyFaults(DEFAULT_FAULTS);
-      const { error: insErr } = await sb.from("fault_snapshots").insert({ faults: DEFAULT_FAULTS });
-      if (insErr) console.warn("Seed insert failed:", insErr.message);
-      console.log("Seeded FAULTS snapshot");
-    } else {
-      applyFaults(data[0].faults);
-      console.log("Loaded latest FAULTS snapshot");
+      const from = parseWall(f["Failure Date"]), to = parseWall(f["Date in order"]);
+      setText("b-uniq", f.FMS);
+      setText("b-from-time", from ? fmt(from).slice(-5) : ""); setText("b-from-date", from ? fmt(from).slice(0, 10) : "");
+      setText("b-to-time", to ? fmt(to).slice(-5) : ""); setText("b-to-date", to ? fmt(to).slice(0, 10) : "");
+      setText("b-route", L.route); setText("b-elr", L.elr); setText("b-loc", L.loc); setText("b-line", L.line); setText("b-miles", L.miles);
+      setText("b-signed-val", signed); setText("b-signed-date", today);
     }
   }
 
-  async function saveSnapshot(){
-    const faults = Array.isArray(window.FAULTS) ? window.FAULTS : [];
-    const { error } = await sb.from("fault_snapshots").insert({ faults });
-    if (error) throw error;
-    console.log("Saved new FAULTS snapshot");
+  /* =================== Exports =================== */
+  function download(name, text, type){
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-
-  let _t;
-  window.queueSave = function queueSave(){
-    clearTimeout(_t);
-    _t = setTimeout(() => {
-      saveSnapshot().catch(e => alert("Save failed: " + e.message));
-    }, 800);
-  };
-
-  document.addEventListener('DOMContentLoaded', () => {
-    loadFaults()
-      .then(() => {
-        document.querySelectorAll('input, textarea, select')
-          .forEach(el => el.addEventListener('input', window.queueSave));
-      })
-      .catch(e => alert("Load failed: " + e.message));
-  });
-
-  window.loadFaults = loadFaults;
-  window.saveSnapshot = saveSnapshot;
-
-  /* ===== Notifications log (read-only; sending is done server-side by habd-notify) ===== */
-  const NTF_KIND = { A: "F3.21A outage", B: "F3.21B reinstated", overview: "Daily overview" };
-  const NTF_BADGE = { sent: "g", failed: "r", cancelled: "", suppressed: "", skipped: "", queued: "", sending: "" };
-  const fmt = (ts) => ts ? new Date(ts).toLocaleString("en-GB", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", timeZone:"Europe/London" }) : "";
-
-  async function loadNotifications(){
-    const body = document.getElementById("ntf-body");
-    const { data, error } = await sb.rpc("habd_recent_notifications", { max_rows: 100 });
-    if (error) { body.innerHTML = ""; document.getElementById("ntf-count").textContent = "Load failed: " + error.message; return; }
-    body.innerHTML = "";
-    (data || []).forEach(n => {
-      const tr = document.createElement("tr");
-      const status = n.status + (n.is_test || n.mode === "test" ? " (test)" : "");
-      const cells = [fmt(n.created_at), NTF_KIND[n.kind] || n.kind, n.fin || "", null, fmt(n.sent_at),
-                     n.recipients ? n.recipients + " recipient" + (n.recipients === 1 ? "" : "s") : "", n.error || n.subject || ""];
-      cells.forEach((c, i) => {
-        const td = document.createElement("td");
-        if (i === 3) {
-          const b = document.createElement("span");
-          b.className = "badge " + (NTF_BADGE[n.status] || "");
-          b.textContent = status;
-          td.appendChild(b);
-        } else td.textContent = c;
-        if (i === 6) td.style.whiteSpace = "normal";
-        tr.appendChild(td);
-      });
-      body.appendChild(tr);
+  const csvQ = (v) => `"${String(v ?? "").split('"').join('""')}"`;
+  function exportAssets(){
+    const head = ["ID","Type","Controlling SB","Location","Line","Route","ELR","Mileage","Status","FIN","FMS","Out of use since","Days out","Notes"];
+    const rows = statusRows().map(({ a, open }) => {
+      const f = open[0]; const since = f ? parseWall(f["Failure Date"]) : null;
+      return [a.ID, typeOf(a), a["Controlling SB"], a.Location, a.Line, a.Route, a.ELR, a.Mileage, f ? "Out of use" : "In use",
+        f?.FIN, f?.FMS, since ? fmt(since) : "", f ? daysBetween(since) : "", f?.Notes];
     });
-    document.getElementById("ntf-count").textContent = (data || []).length + " notifications";
+    download("habd-wild-status.csv", [head, ...rows].map(r => r.map(csvQ).join(",")).join("\r\n"), "text/csv");
   }
-  window.loadNotifications = loadNotifications;
-  document.querySelector('[data-tab="tab-notify"]').addEventListener("click", loadNotifications);
+  function exportFaults(){
+    const head = ["FIN","ID","Type","Controlling SB","Location","Line","Route","ELR","Mileage","FMS","Out of use from","Reinstated","Status","Notes"];
+    const rows = FAULTS.map(f => { const a = byId(f.ID); const L = location(a, f);
+      return [f.FIN, f.ID, typeOf(a || f), L.box, L.loc, L.line, L.route, L.elr, L.miles, f.FMS,
+        fmt(parseWall(f["Failure Date"])) || f["Failure Date"], fmt(parseWall(f["Date in order"])) || f["Date in order"], isOpen(f) ? "Out of use" : "Reinstated", f.Notes]; });
+    download("habd-wild-fault-history.csv", [head, ...rows].map(r => r.map(csvQ).join(",")).join("\r\n"), "text/csv");
+  }
+
+  /* =================== Wiring =================== */
+  function renderAll(){ renderBoard(); renderHistory(); fillFormFins(); populateForms(); }
+
+  $$(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
+    $$(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+    $$(".tab").forEach(t => t.classList.toggle("active", t.id === btn.dataset.tab));
+    if (btn.dataset.tab === "tab-log") loadMail();
+  }));
+  function setBoardFilter(v){
+    boardFilter = v;
+    $$(".chip[data-filter]").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.filter === v)));
+    renderBoard();
+  }
+  $$(".chip[data-filter]").forEach(c => c.addEventListener("click", () => setBoardFilter(c.dataset.filter)));
+  $$(".stat[data-filter]").forEach(c => c.addEventListener("click", () => setBoardFilter(boardFilter === c.dataset.filter ? "all" : c.dataset.filter)));
+  $$(".chip[data-hfilter]").forEach(c => c.addEventListener("click", () => {
+    histFilter = c.dataset.hfilter;
+    $$(".chip[data-hfilter]").forEach(x => x.setAttribute("aria-pressed", String(x === c)));
+    renderHistory();
+  }));
+  $("#board-q").addEventListener("input", renderBoard);
+  $("#hist-q").addEventListener("input", renderHistory);
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-action]"); if (!b || b.disabled) return;
+    if (b.dataset.action === "out") reportOut(b.dataset.id);
+    if (b.dataset.action === "in") returnToService(b.dataset.id);
+    if (b.dataset.action === "edit") editFault(b.dataset.fin);
+  });
+  $("#btn-refresh").addEventListener("click", () => refresh());
+  $("#btn-log-refresh").addEventListener("click", loadMail);
+  $("#btn-export-assets").addEventListener("click", exportAssets);
+  $("#btn-export-faults").addEventListener("click", exportFaults);
+  $("#btn-backup").addEventListener("click", () => download("faults-backup.json", JSON.stringify({ faults: FAULTS }, null, 2), "application/json"));
+  $("#form-kind").addEventListener("change", () => { fillFormFins(); populateForms(); });
+  $("#form-fin").addEventListener("change", populateForms);
+  $("#form-signed").addEventListener("input", populateForms);
+
+  // Show the how-to open until someone has closed it once on this machine.
+  try { $("#howto").open = localStorage.getItem("habd-howto-closed") !== "1"; } catch {}
+  $("#howto").addEventListener("toggle", () => { try { localStorage.setItem("habd-howto-closed", $("#howto").open ? "0" : "1"); } catch {} });
+
+  // Keep every open screen current: poll every 30 s and on focus, but never while a dialog is open.
+  const dialogOpen = () => $$("dialog").some(d => d.open);
+  setInterval(() => { if (!busy && !dialogOpen() && !document.hidden) refresh({ quiet: false }); }, 30_000);
+  window.addEventListener("focus", () => { if (!busy && !dialogOpen()) refresh({ quiet: true }); });
+
+  refresh({ quiet: true });
 </script>
 </body>
 </html>
