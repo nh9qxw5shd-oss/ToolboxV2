@@ -6,8 +6,8 @@ NOP F3.21A / F3.21B for any fault, and the log of the emails that go with them.
 
 Next.js App Router, TypeScript strict, Tailwind v4, Autumn Hub house style. Supabase "Mini Project Hub".
 Mounted on Overseer at `https://overseer.derbycontrol.co.uk/habd`; sign-in and the HABD switch are
-needed. `index.html` at the root is the old GitHub Pages page (Next does not serve it); it keeps the
-desk working until the Overseer mount is live and is then replaced by a redirect.
+needed. `index.html` at the root only sends the old GitHub Pages address to Overseer (Next does not
+serve it).
 
 ## Pages
 - **Status board** (`/`): every site by controlling signal box, out of use first. Report out of use (FMS,
