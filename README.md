@@ -1,40 +1,33 @@
-[README.md](https://github.com/user-attachments/files/23289638/README.md)
-# HABD WILD EM — GitHub Pages Pack
+# HABD / WILD
 
-This folder is structured for **GitHub Pages** hosting.
+Derby Control's board for the East Midlands hot axle box (HABD) and wheel impact load (WILD, Thurmaston)
+detectors: which are in use, reporting one out of use or back in use, the fault history, the official
+NOP F3.21A / F3.21B for any fault, and the log of the emails that go with them.
 
-## Files
-- `index.html` — your dashboard (served at `/`).
-- `.nojekyll` — disables Jekyll processing so static files are served as-is.
-- `404.html` — basic redirect back to `/` if someone hits a bad path.
+Next.js App Router, TypeScript strict, Tailwind v4, Autumn Hub house style. Supabase "Mini Project Hub".
+Mounted on Overseer at `https://overseer.derbycontrol.co.uk/habd`; sign-in and the HABD switch are
+needed. `index.html` at the root is the old GitHub Pages page (Next does not serve it); it keeps the
+desk working until the Overseer mount is live and is then replaced by a redirect.
 
-## Deploy to GitHub Pages
-1. Create a new public repository on GitHub (e.g., `habd-wild-em`).
-2. Upload these files to the repo **root** (so `index.html` sits at the top level).
-3. Go to **Settings → Pages**.
-   - **Source**: `Deploy from a branch`
-   - **Branch**: `main` / `/ (root)`
-   - Click **Save**.
-4. Your site will appear at: `https://<your-username>.github.io/<repo-name>/`.
+## Pages
+- **Status board** (`/`): every site by controlling signal box, out of use first. Report out of use (FMS,
+  time, notes) and Return to service, each with 90 seconds to undo; CSV export. `?q=` and `?box=` narrow it.
+- **Fault history** (`/history`): every fault, its emails and Edit (FMS, times, notes); CSV and JSON backup.
+- **F3.21 forms** (`/forms`): the official form filled in for a fault, built in the browser from
+  `public/forms` with the same cells as the emailed copy, to save or print.
+- **Email log** (`/log`): every F3.21A / F3.21B and 06:00 overview email by day (counts, no addresses).
 
-## Data persistence (GitHub Pages is static)
-GitHub Pages **cannot** run serverless functions. For saving changes, use one of:
-- **Supabase** (recommended): store your `{ assets, faults }` JSON in a table and call it via the JS client.
-- **Cloudflare Workers/KV**: host the API endpoint separately and point the dashboard to it.
-- **Any REST API** you control.
+## Data
+- Equipment: `assets.json` in the `Assets` storage bucket (also read by `habd-notify`).
+- Fault log: the latest row of `fault_snapshots`. Every change re-reads the latest row, applies itself
+  and inserts the whole log as a new row, so an out-of-date screen never overwrites someone else. The
+  field shapes are fixed by the server: `"Failure Date"` `YYYY-MM-DDTHH:MM`, `"Date in order"`
+  `dd/mm/yyyy HH:MM` (blank = out of use), London wall-clock time.
+- Rules are pure and tested: `src/lib/habd/faults.ts`, `forms.ts` (`npm test`).
 
-If your current dashboard sends `GET/PUT` to `/api/state`, update the JS to point to your chosen backend endpoint, e.g.:
-```js
-const API = 'https://your-worker-or-supabase-endpoint.example.com/api/state';
-// GET
-const state = await fetch(API).then(r=>r.json());
-// PUT
-await fetch(API, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(state) });
-```
-
-> Tip: If you want me to wire this to Supabase for you, share the anon key + URL and I'll hand back a drop-in HTML.
-
----
+## Working here
+`npm run lint`, `npm run type-check`, `npm test`, `npm run build` before any push. `basePath` is `/habd`;
+the root and `/index.html` redirect there and a page load without Overseer's marker goes to Overseer.
 
 ## Notifications (F3.21A / F3.21B and daily overview)
 
@@ -51,9 +44,9 @@ habd-notify ──▶ re-checks latest snapshot ──▶ fills official blank F
   (`dd/mm/yyyy hh:mm`, as "Close now" stamps it). Partly typed values are ignored.
 - Each form waits `grace_minutes` (default 2) and is re-checked before sending, so a typo corrected
   straight away is not advised. One A and one B per FIN, ever.
-- PDFs are the official blanks (`Blank PDF F3.21A.pdf` / `F3.21B.pdf`, copied to the private
-  `habd-forms` bucket) with the values written into their cells. Times are Europe/London.
-- The **Notifications** tab shows every email, its status and any error.
+- PDFs are the official blanks (`public/forms/F3.21A blank.pdf` / `F3.21B blank.pdf`, copied to the
+  private `habd-forms` bucket) with the values written into their cells. Times are Europe/London.
+- The **Email log** page shows every email, its status and any error.
 
 Code: `supabase/functions/habd-notify/`, schema: `supabase/migrations/20260925210000_habd_notifications.sql`.
 
@@ -81,4 +74,5 @@ select id, kind, fin, status, mode, subject, error, sent_at from habd_email_outb
 ```
 
 Blank forms: if the official F3.21A/B are reissued, upload the new PDFs to the `habd-forms` bucket
-under the same names and re-check the cell positions in `forms.ts` (measured in PDF points).
+under the same names and re-check the cell positions in `supabase/functions/habd-notify/forms.ts` and `src/lib/habd/forms.ts`
+(the page's print copy), and replace the copies in `public/forms` (measured in PDF points).
